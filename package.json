@@ -4,8 +4,7 @@
   "type": "module",
 	"scripts": {
 		"build": "node esbuild.config.js",
-		"build_01": "cd examples/01_create_element && node ../esbuild.config.js",
-    "link_01": "yarn link && cd examples/01_create_element && yarn link \"react\""
+		"build_01": "cd examples/01_create_element && node ../esbuild.config.js"
 	},
 	"devDependencies": {
 		"esbuild": "^0.27.2",

@@ -8,6 +8,6 @@ esbuild
 		minify: true,
 		sourcemap: false,
 		format: "iife",
-		target: ["es6"],
+		target: ["es6"]
 	})
 	.catch(() => process.exit(1));

@@ -9,6 +9,6 @@ esbuild
 		sourcemap: false,
 		format: "iife",
 		target: ["es6"],
-		globalName: "Reakt",
+		globalName: "Reakt"
 	})
 	.catch(() => process.exit(1));
