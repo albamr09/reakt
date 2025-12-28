@@ -2,7 +2,8 @@
 	"name": "reakt",
 	"version": "1.0.0",
 	"scripts": {
-    "build": "node esbuild.config.js"
+    "build": "node esbuild.config.js",
+    "build_01": "cd examples/01_create_element && node ../esbuild.config.js"
 	},
 	"devDependencies": {
 		"esbuild": "^0.27.2"
