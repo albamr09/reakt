@@ -1,0 +1,10 @@
+{
+	"name": "reakt",
+	"version": "1.0.0",
+	"scripts": {
+    "build": "node esbuild.config.js"
+	},
+	"devDependencies": {
+		"esbuild": "^0.27.2"
+	}
+}
