@@ -1,11 +1,14 @@
 {
 	"name": "reakt",
 	"version": "1.0.0",
+  "type": "module",
 	"scripts": {
-    "build": "node esbuild.config.js",
-    "build_01": "cd examples/01_create_element && node ../esbuild.config.js"
+		"build": "node esbuild.config.js",
+		"build_01": "cd examples/01_create_element && node ../esbuild.config.js",
+    "link_01": "yarn link && cd examples/01_create_element && yarn link \"react\""
 	},
 	"devDependencies": {
-		"esbuild": "^0.27.2"
+		"esbuild": "^0.27.2",
+		"typescript": "^5.9.3"
 	}
 }

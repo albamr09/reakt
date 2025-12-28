@@ -1,14 +1,14 @@
-const esbuild = require("esbuild");
+import esbuild from "esbuild";
 
 esbuild
 	.build({
-		entryPoints: ["src/index.ts"], // your main entry point
-		bundle: true, // bundle all dependencies
-		outfile: "build/reakt.js", // single output file
-		minify: true, // minify the code
+		entryPoints: ["src/index.ts"],
+		bundle: true,
+		outfile: "build/reakt.js",
+		minify: true,
 		sourcemap: false,
-		format: "iife", // immediately-invoked function expression (browser ready)
-		target: ["es6"], // transpile down to ES5
-		globalName: "Reakt", // expose as window.Reakt
+		format: "iife",
+		target: ["es6"],
+		globalName: "Reakt",
 	})
 	.catch(() => process.exit(1));
