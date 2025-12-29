@@ -1,0 +1,15 @@
+{
+ "name": "reakt-examples",
+ "version": "1.0.0",
+ "scripts": {
+  "build": "tsc src/**/*.ts"
+ },
+ "dependencies": {
+  "reakt": "file:../"
+ },
+ "devDependencies": {
+  "serve": "^14.2.5",
+  "tsup": "^8.5.1",
+  "typescript": "^5.9.3"
+ }
+}
