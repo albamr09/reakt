@@ -1,4 +1,4 @@
-import type { Element } from "./types";
+import type { Element } from "@reakt/types";
 
 export const createElement = <T>(
 	type: Element<T>["type"],

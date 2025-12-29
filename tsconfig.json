@@ -1,11 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "ES5",
-    "module": "ESNext",
-    "outDir": "./build",
-    "strict": true,
-    "esModuleInterop": true
-  },
-  "include": ["src"]
+	"include": ["src"],
+	"compilerOptions": {
+		"baseUrl": ".",
+    "paths": {
+      "@reakt/*": ["src/*"]
+    },
+		"module": "esnext",
+		"target": "esnext",
+		"lib": ["esnext"],
+		"declaration": true,
+		"strict": true,
+		"moduleResolution": "node",
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"rootDir": "src"
+	}
 }
-

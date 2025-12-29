@@ -3,11 +3,28 @@
 	"version": "1.0.0",
   "type": "module",
 	"scripts": {
-		"build": "node esbuild.config.js",
-		"build_01": "cd examples/01_create_element && node ../esbuild.config.js"
+    "build": "tsup",
+    "dev": "tsup --watch"
 	},
+  "description": "Reakt Library",
+  "main": "build/index.js",
+  "module": "build/index.mjs",
+  "types": "build/index.d.ts",
+  "files": ["dist"],
+  "keywords": ["typescript", "library"],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/albamr/reakt"
+  },
+  "bugs": {
+    "url": "https://github.com/albamr09/reakt/issues"
+  },
+  "homepage": "https://github.com/albamr/reakt#readme",
 	"devDependencies": {
 		"esbuild": "^0.27.2",
 		"typescript": "^5.9.3"
 	}
 }
+
