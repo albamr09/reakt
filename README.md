@@ -28,4 +28,4 @@ You can now open start a server to see the examples for yourself:
 pnpm serve
 ```
 
-This will start a server on `http://localhost:3000`, from where you can examplore all the examples available.
+This will start a server on `http://localhost:3000`, from where you can explore all the examples available.
