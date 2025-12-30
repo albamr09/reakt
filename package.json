@@ -1,34 +1,35 @@
 {
- "name": "reakt",
- "version": "1.0.0",
- "type": "module",
- "scripts": {
-  "build": "tsup",
-  "dev": "tsup --watch"
- },
- "description": "Reakt Library",
- "main": "build/index.js",
- "module": "build/index.mjs",
- "types": "build/index.d.ts",
- "files": [
-  "dist"
- ],
- "keywords": [
-  "typescript",
-  "library"
- ],
- "author": "Your Name",
- "license": "MIT",
- "repository": {
-  "type": "git",
-  "url": "https://github.com/albamr/reakt"
- },
- "bugs": {
-  "url": "https://github.com/albamr09/reakt/issues"
- },
- "homepage": "https://github.com/albamr/reakt#readme",
- "devDependencies": {
-  "tsup": "^8.5.1",
-  "typescript": "^5.9.3"
- }
+	"name": "reakt",
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"example:dev": "pnpm build && cd examples && rm -rf node_modules && pnpm install && pnpm build && pnpm serve"
+	},
+	"description": "Reakt Library",
+	"main": "build/index.js",
+	"module": "build/index.mjs",
+	"types": "build/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"keywords": [
+		"typescript",
+		"library"
+	],
+	"author": "Alba Martínez Rodríguez",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/albamr/reakt"
+	},
+	"bugs": {
+		"url": "https://github.com/albamr09/reakt/issues"
+	},
+	"homepage": "https://github.com/albamr/reakt#readme",
+	"devDependencies": {
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3"
+	}
 }

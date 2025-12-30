@@ -1,17 +1,19 @@
 {
- "name": "reakt-examples",
- "version": "1.0.0",
- "scripts": {
-  "build": "tsup",
-  "serve": "serve build"
- },
- "dependencies": {
-  "reakt": "file:../"
- },
- "devDependencies": {
-  "glob": "^13.0.0",
-  "serve": "^14.2.5",
-  "tsup": "^8.5.1",
-  "typescript": "^5.9.3"
- }
+	"name": "reakt-examples",
+	"version": "1.0.0",
+	"author": "Alba Martínez Rodríguez",
+	"license": "MIT",
+	"scripts": {
+		"build": "tsup",
+		"serve": "serve build"
+	},
+	"dependencies": {
+		"reakt": "file:../"
+	},
+	"devDependencies": {
+		"glob": "^13.0.0",
+		"serve": "^14.2.5",
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3"
+	}
 }
