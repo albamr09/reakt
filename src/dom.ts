@@ -2,18 +2,6 @@ import type { PrimitiveReaktElement, ReaktElement } from "@reakt/types";
 import { PRIMITIVE_ELEMENT_TYPE } from "./constants";
 
 /**
- * Type guard to check if an element is a primitive element.
- *
- * @param element - The element to check
- * @returns True if the element is a primitive element
- */
-const isPrimitiveElement = (
-	element: ReaktElement,
-): element is PrimitiveReaktElement => {
-	return element.type === PRIMITIVE_ELEMENT_TYPE;
-};
-
-/**
  * Renders a virtual DOM element to the actual DOM.
  *
  * @param container - The DOM container where the element should be rendered
@@ -28,6 +16,18 @@ export const render = (container: HTMLElement, element: ReaktElement): void => {
 
 	const domNode = createNode({ element });
 	container.appendChild(domNode);
+};
+
+/**
+ * Type guard to check if an element is a primitive element.
+ *
+ * @param element - The element to check
+ * @returns True if the element is a primitive element
+ */
+const isPrimitiveElement = (
+	element: ReaktElement,
+): element is PrimitiveReaktElement => {
+	return element.type === PRIMITIVE_ELEMENT_TYPE;
 };
 
 /**
