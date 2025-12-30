@@ -5,14 +5,15 @@
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",
-		"example:dev": "pnpm build && cd examples && rm -rf node_modules && pnpm install && pnpm build && pnpm serve"
+		"example:dev": "pnpm build && cd examples && rm -rf node_modules && pnpm install && pnpm build && pnpm serve",
+		"example:build": "pnpm build && cd examples && pnpm build"
 	},
 	"description": "Reakt Library",
 	"main": "build/index.js",
 	"module": "build/index.mjs",
 	"types": "build/index.d.ts",
 	"files": [
-		"dist"
+		"build"
 	],
 	"keywords": [
 		"typescript",

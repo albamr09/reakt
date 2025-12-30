@@ -1,14 +1,9 @@
 /**
- * Base type for element props that may include children.
- */
-export type ElementProps = { children?: ReaktElement[] };
-
-/**
  * Represents a virtual DOM element in the Reakt library.
  *
  * @template T - The type of the props object
  */
-export interface Element<T extends ElementProps = ElementProps> {
+export interface ReaktElement<T extends ReaktElementProps = ReaktElementProps> {
 	/**
 	 * The type of the element (e.g., "div", "span", or a component name).
 	 */
@@ -21,11 +16,17 @@ export interface Element<T extends ElementProps = ElementProps> {
 }
 
 /**
- * Represents an element created by createElement, where children is always present.
- * This is the return type of createElement and the expected input type for render.
- *
- * @template T - The type of the props object (excluding children)
+ * Represents a primitive (text) element with a fixed structure.
+ * The type is always PRIMITIVE_ELEMENT_TYPE, and props always contain nodeValue with an empty children array.
  */
-export type ReaktElement<T extends ElementProps = ElementProps> = Element<
-	T & { children: ReaktElement[] }
->;
+export type PrimitiveReaktElement = ReaktElement<{
+	nodeValue: string;
+	children: [];
+}> & {
+	type: "PRIMITIVE_ELEMENT";
+};
+
+/**
+ * Base type for element props that may include children.
+ */
+export type ReaktElementProps = { children: ReaktElement[] };

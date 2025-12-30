@@ -1,14 +1,26 @@
-import type { ReaktElement } from "@reakt/types";
+import type { PrimitiveReaktElement, ReaktElement } from "@reakt/types";
 import { PRIMITIVE_ELEMENT_TYPE } from "./constants";
+
+/**
+ * Type guard to check if an element is a primitive element.
+ *
+ * @param element - The element to check
+ * @returns True if the element is a primitive element
+ */
+const isPrimitiveElement = (
+	element: ReaktElement,
+): element is PrimitiveReaktElement => {
+	return element.type === PRIMITIVE_ELEMENT_TYPE;
+};
 
 /**
  * Renders a virtual DOM element to the actual DOM.
  *
- * @param element - The virtual DOM element to render
  * @param container - The DOM container where the element should be rendered
+ * @param element - The virtual DOM element to render
  */
 export const render = (container: HTMLElement, element: ReaktElement): void => {
-	if (element.type === PRIMITIVE_ELEMENT_TYPE) {
+	if (isPrimitiveElement(element)) {
 		const domNode = createPrimitiveNode({ element });
 		container.appendChild(domNode);
 		return;
@@ -24,9 +36,13 @@ export const render = (container: HTMLElement, element: ReaktElement): void => {
  * @param element - The primitive element to create a text node from
  * @returns The created text node
  */
-export const createPrimitiveNode = ({ element }: { element: ReaktElement }) => {
-	const { children } = element.props;
-	const domNode = document.createTextNode(`${children}`);
+export const createPrimitiveNode = ({
+	element,
+}: {
+	element: PrimitiveReaktElement;
+}) => {
+	const { nodeValue } = element.props;
+	const domNode = document.createTextNode(nodeValue);
 	return domNode;
 };
 

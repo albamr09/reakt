@@ -1,5 +1,9 @@
 import { PRIMITIVE_ELEMENT_TYPE } from "@reakt/constants";
-import type { Element, ElementProps, ReaktElement } from "@reakt/types";
+import type {
+	PrimitiveReaktElement,
+	ReaktElement,
+	ReaktElementProps,
+} from "@reakt/types";
 
 /**
  * Creates a text element from a string value.
@@ -7,7 +11,7 @@ import type { Element, ElementProps, ReaktElement } from "@reakt/types";
  * @param value - The text content to convert into an element
  * @returns An element object with type "PRIMITIVE_ELEMENT_TYPE" and the value as nodeValue
  */
-const createPrimitiveElement = (value: string) => {
+const createPrimitiveElement = (value: string): PrimitiveReaktElement => {
 	return {
 		type: PRIMITIVE_ELEMENT_TYPE,
 		props: {
@@ -32,11 +36,11 @@ const createPrimitiveElement = (value: string) => {
  * createElement("span", { className: "text" }, createElement("strong", {}, "Bold"))
  * ```
  */
-export const createElement = <T extends ElementProps>(
-	type: Element<T>["type"],
-	props: Element<T>["props"],
+export const createElement = <T extends ReaktElementProps>(
+	type: ReaktElement<T>["type"],
+	props: ReaktElement<T>["props"],
 	// Children is always an array
-	...children: Element[]
+	...children: ReaktElement[]
 ): ReaktElement<T> => {
 	return {
 		type,
@@ -48,4 +52,3 @@ export const createElement = <T extends ElementProps>(
 		},
 	};
 };
-
