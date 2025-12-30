@@ -1,4 +1,3 @@
-export * from "@reakt/dom";
-export * from "@reakt/element";
-export * from "@reakt/types";
-
+export { render } from "@reakt/dom";
+export { createElement } from "@reakt/element";
+export { ReaktElement } from "@reakt/types";

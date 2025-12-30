@@ -36,7 +36,7 @@ export const render = (container: HTMLElement, element: ReaktElement): void => {
  * @param element - The primitive element to create a text node from
  * @returns The created text node
  */
-export const createPrimitiveNode = ({
+const createPrimitiveNode = ({
 	element,
 }: {
 	element: PrimitiveReaktElement;
@@ -52,7 +52,7 @@ export const createPrimitiveNode = ({
  * @param element - The virtual element to create a DOM node from
  * @returns The created DOM node
  */
-export const createNode = ({ element }: { element: ReaktElement }) => {
+const createNode = ({ element }: { element: ReaktElement }) => {
 	const { children, ...props } = element.props;
 
 	const domNode = document.createElement(element.type);
@@ -70,7 +70,7 @@ export const createNode = ({ element }: { element: ReaktElement }) => {
  * @param node - The DOM node to add properties to
  * @param props - The properties to add to the node
  */
-export const addProps = <T extends Omit<ReaktElement["props"], "children">>({
+const addProps = <T extends Omit<ReaktElement["props"], "children">>({
 	node,
 	props,
 }: {
