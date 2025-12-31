@@ -35,7 +35,7 @@ export default defineConfig({
 	splitting: false,
 	dts: false,
 	tsconfig: "./tsconfig.json",
-  // Specify my custom method for React's createElement
+	// Specify my custom method for React's createElement
 	jsxFactory: "Reakt.createElement",
 	// Copy html files
 	async onSuccess() {

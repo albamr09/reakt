@@ -9,4 +9,4 @@ const Element = (
 );
 
 // This outputs the result from calling Reakt.createElement!!
-console.log(Element)
+console.log(Element);
