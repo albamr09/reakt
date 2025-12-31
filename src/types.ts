@@ -30,3 +30,11 @@ export type PrimitiveReaktElement = ReaktElement<{
  * Base type for element props that may include children.
  */
 export type ReaktElementProps = { children: ReaktElement[] };
+
+export type Fiber = {
+	dom?: HTMLElement | Text;
+	element: ReaktElement;
+	parent?: Fiber;
+	child?: Fiber;
+	sibling?: Fiber;
+};
