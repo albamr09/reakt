@@ -31,6 +31,17 @@ export type PrimitiveReaktElement = ReaktElement<{
  */
 export type ReaktElementProps = { children: ReaktElement[] };
 
+/**
+ * Represents a fiber in the Reakt fiber tree. 
+ * 
+ * A fiber is a unit of work in the Reakt fiber tree. It represents a virtual DOM element and its associated DOM node.
+ * 
+ * @property dom - The DOM node associated with the fiber.
+ * @property element - The virtual DOM element associated with the fiber.
+ * @property parent - The parent fiber in the tree.
+ * @property child - The first child fiber in the tree.
+ * @property sibling - The next sibling fiber in the tree.
+ */
 export type Fiber = {
 	dom?: HTMLElement | Text;
 	element: ReaktElement;
