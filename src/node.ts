@@ -1,4 +1,3 @@
-import { PRIMITIVE_ELEMENT_TYPE } from "@reakt/constants";
 import type { PrimitiveReaktElement, ReaktElement } from "@reakt/types";
 
 /**
@@ -9,18 +8,6 @@ import type { PrimitiveReaktElement, ReaktElement } from "@reakt/types";
  */
 export const isTextHTMLNode = (node: HTMLElement | Text): node is Text => {
 	return node instanceof Text;
-};
-
-/**
- * Type guard to check if an element is a primitive element.
- *
- * @param element - The element to check
- * @returns True if the element is a primitive element
- */
-export const isPrimitiveElement = (
-	element: ReaktElement,
-): element is PrimitiveReaktElement => {
-	return element.type === PRIMITIVE_ELEMENT_TYPE;
 };
 
 /**

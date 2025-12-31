@@ -1,9 +1,5 @@
-import {
-	createNode,
-	createPrimitiveNode,
-	isPrimitiveElement,
-	isTextHTMLNode,
-} from "@reakt/node";
+import { isPrimitiveElement } from "@reakt/element";
+import { createNode, createPrimitiveNode, isTextHTMLNode } from "@reakt/node";
 import type { Fiber, ReaktElement } from "@reakt/types";
 
 /**
@@ -26,7 +22,7 @@ export const startWorkLoop = (rootFiber: Fiber): void => {
 			shouldYield = deadline.timeRemaining() < 1;
 		}
 
-    // If there are still fibers to process, schedule the next work loop
+		// If there are still fibers to process, schedule the next work loop
 		if (currentFiber !== undefined) {
 			requestIdleCallback(workLoop);
 		}
