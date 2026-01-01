@@ -37,11 +37,11 @@ export const startWorkLoop = (rootFiber: Fiber): void => {
 };
 
 /**
- * Performs a unit of work on a fiber: commits it to the DOM, creates child fibers, and returns the next fiber to process.
+ * Performs a unit of work on a fiber: creates its DOM node, creates child fibers, and returns the next fiber to process.
  *
  * This function processes a single fiber in the work loop by:
  * 1. Validating that the fiber has a valid parent with a DOM node
- * 2. Creating and appending the fiber's DOM node to its parent
+ * 2. Creating the fiber's DOM node (but not appending it - that happens in the commit phase)
  * 3. Creating child fibers from the element's children
  * 4. Returning the next fiber to process in the depth-first traversal
  *
@@ -78,7 +78,7 @@ const performUnitOfWork = (fiber: Fiber): Fiber | undefined => {
 		return undefined;
 	}
 
-	fiber = createFiberDOM(fiber);
+	fiber = createNodeFromFiber(fiber);
 	fiber = createChildFibers(fiber);
 	return findNextFiberInTraversal(fiber);
 };
@@ -124,12 +124,17 @@ const doesFiberHaveValidParent = (
 };
 
 /**
- * Commits a fiber to the DOM by creating its DOM node and appending it to the parent.
+ * Creates a DOM node for a fiber based on its element type.
  *
- * @param fiber - The fiber to commit to the DOM. Must have a valid parent with a DOM node.
+ * Creates either a primitive DOM node (Text) or a regular DOM node (HTMLElement)
+ * depending on the fiber's element type, and assigns it to the fiber's `dom` property.
+ * The DOM node is not appended to the document at this stage - that happens during
+ * the commit phase via `commitWork`.
+ *
+ * @param fiber - The fiber for which to create a DOM node.
  * @returns The fiber with its `dom` property set to the created DOM node.
  */
-const createFiberDOM = (fiber: Fiber) => {
+const createNodeFromFiber = (fiber: Fiber) => {
 	let domNode: HTMLElement | Text;
 	if (isPrimitiveElement(fiber.element)) {
 		domNode = createPrimitiveNode({ element: fiber.element });
