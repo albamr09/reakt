@@ -3,9 +3,7 @@ import * as Reakt from "reakt";
 
 const LargeTree = ({ depth, breadth }: { depth: number; breadth: number }) => {
 	if (depth === 0) {
-		return (
-			<div className="leaf">Leaf {Math.random().toString(36)}</div>
-		);
+		return <div className="leaf">Leaf {Math.random().toString(36)}</div>;
 	}
 
 	return (

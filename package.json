@@ -3,10 +3,12 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"prebuild": "pnpm depcruise src && pnpm biome check src",
+		"prebuild": "pnpm depcruise src && pnpm lint:check",
 		"build": "tsup",
 		"example:dev": "pnpm build && cd examples && pnpm install && pnpm build && pnpm serve",
+		"example:prebuild": "cd examples && pnpm lint:check",
 		"example:build": "pnpm build && cd examples && pnpm build",
+		"lint:check": "biome check src",
 		"lint:format": "biome format --write src",
 		"lint:fix": "biome check --write src",
 		"prepare": "husky"

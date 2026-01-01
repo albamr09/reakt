@@ -14,11 +14,11 @@ const setup = () => {
 	const h1Node = document.createElement(element.type);
 
 	// 2. Add the props to the node
-	h1Node["title"] = element.props.title;
+	h1Node.title = element.props.title;
 
 	// 3. Add the children to the node, in this case a simple text element
 	const textNode = document.createTextNode("");
-	textNode["nodeValue"] = element.props.children;
+	textNode.nodeValue = element.props.children;
 
 	// 4. Update the DOM by adding each element to the DOM
 	h1Node.appendChild(textNode);

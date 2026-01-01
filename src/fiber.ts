@@ -22,10 +22,15 @@ export const startWorkLoop = (rootFiber: Fiber): void => {
 			shouldYield = deadline.timeRemaining() < 1;
 		}
 
-		// If there are still fibers to process, schedule the next work loop
-		if (currentFiber !== undefined) {
-			requestIdleCallback(workLoop);
+		// When work loop finishes (all elements have been processed)
+		// commit to DOM
+		if (currentFiber === undefined && rootFiber) {
+			commitFiberRoot(rootFiber);
+			return;
 		}
+
+		// If there are still fibers to process, schedule the next work loop
+		requestIdleCallback(workLoop);
 	};
 
 	requestIdleCallback(workLoop);
@@ -73,7 +78,7 @@ const performUnitOfWork = (fiber: Fiber): Fiber | undefined => {
 		return undefined;
 	}
 
-	fiber = commitFiberToDOM(fiber);
+	fiber = createFiberDOM(fiber);
 	fiber = createChildFibers(fiber);
 	return findNextFiberInTraversal(fiber);
 };
@@ -124,11 +129,7 @@ const doesFiberHaveValidParent = (
  * @param fiber - The fiber to commit to the DOM. Must have a valid parent with a DOM node.
  * @returns The fiber with its `dom` property set to the created DOM node.
  */
-const commitFiberToDOM = (
-	fiber: Fiber & {
-		parent: NonNullable<Fiber["parent"]> & { dom: NonNullable<Fiber["dom"]> };
-	},
-) => {
+const createFiberDOM = (fiber: Fiber) => {
 	let domNode: HTMLElement | Text;
 	if (isPrimitiveElement(fiber.element)) {
 		domNode = createPrimitiveNode({ element: fiber.element });
@@ -137,7 +138,6 @@ const commitFiberToDOM = (
 	}
 
 	fiber.dom = domNode;
-	fiber.parent.dom.appendChild(domNode);
 
 	return fiber;
 };
@@ -218,4 +218,38 @@ const findNextFiberInTraversal = (fiber: Fiber) => {
 
 	// If we reach the root, return undefined
 	return undefined;
+};
+
+/**
+ * Commits the entire fiber tree to the DOM, starting from the root fiber.
+ *
+ * This function initiates the commit phase, which recursively traverses the fiber tree
+ * and appends all fiber DOM nodes to their respective parent DOM nodes in the actual DOM.
+ * This is called after all fibers have been processed in the work loop.
+ *
+ * @param rootFiber - The root fiber of the fiber tree to commit to the DOM.
+ */
+export const commitFiberRoot = (rootFiber: Fiber) => {
+	commitWork(rootFiber);
+};
+
+/**
+ * Recursively commits a fiber and its descendants to the DOM.
+ *
+ * Traverses the fiber tree in a depth-first manner, appending each fiber's DOM node
+ * to its parent's DOM node. Skips fibers that don't have a DOM node or a valid parent.
+ *
+ * @param fiber - The fiber to commit. If undefined or if the fiber has no DOM node,
+ *                the function returns early without processing.
+ */
+const commitWork = (fiber?: Fiber) => {
+	const domParent = fiber?.parent?.dom;
+	if (!fiber?.dom || !domParent) {
+		return;
+	}
+
+	domParent.appendChild(fiber.dom);
+
+	commitWork(fiber.child);
+	commitWork(fiber.sibling);
 };
