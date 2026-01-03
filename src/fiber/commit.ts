@@ -77,16 +77,18 @@ const commitUpdate = (fiber: Fiber) => {
 
 	// Handle text nodes
 	if (isTextHTMLNode(fiber.dom)) {
-		const newValue = (newProps as any).nodeValue;
-		if (newValue !== (oldProps as any).nodeValue) {
+		// TODO: fix this
+		// @ts-expect-error
+		const newValue = newProps.nodeValue;
+		// TODO: fix this
+		// @ts-expect-error
+		if (newValue !== oldProps.nodeValue) {
 			fiber.dom.nodeValue = newValue;
 		}
 		return;
 	}
 
-	// Handle regular elements - update props
-	// Remove old props, update changed props, add new props
-	// ... implementation needed
+	// TODO: Remove old props, update changed props, add new props
 };
 
 // TODO: add JSDoc
