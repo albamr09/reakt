@@ -41,6 +41,8 @@ export type ReaktElementProps = { children: ReaktElement[] };
  * @property parent - The parent fiber in the tree.
  * @property child - The first child fiber in the tree.
  * @property sibling - The next sibling fiber in the tree.
+ * @property alternate - The fiber state when it was last commited.
+ * @property effect - The type of operation that has to be applied over the node while commiting the fiber tree.
  */
 export type Fiber = {
 	dom?: HTMLElement | Text;
@@ -48,4 +50,6 @@ export type Fiber = {
 	parent?: Fiber;
 	child?: Fiber;
 	sibling?: Fiber;
+	alternate?: Fiber;
+	effect?: "UPDATE" | "PLACEMENT" | "DELETION";
 };

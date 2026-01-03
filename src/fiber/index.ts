@@ -1,5 +1,8 @@
 import { ROOT_TYPE } from "@reakt/constants";
 import { isPrimitiveElement } from "@reakt/element";
+import { commitFiberRoot } from "@reakt/fiber/commit";
+import { reconcileChildFibers } from "@reakt/fiber/reconciliation";
+import { lastCommitedFiberTree } from "@reakt/fiber/state";
 import { createNode, createPrimitiveNode, isTextHTMLNode } from "@reakt/node";
 import type { Fiber, ReaktElement } from "@reakt/types";
 
@@ -80,7 +83,7 @@ const performUnitOfWork = (fiber: Fiber): Fiber | undefined => {
 	}
 
 	fiber = createNodeFromFiber(fiber);
-	fiber = createChildFibers(fiber);
+	fiber = reconcileChildFibers(fiber);
 	return findNextFiberInTraversal(fiber);
 };
 
@@ -109,6 +112,8 @@ export const createRootFiber = ({
 			props: { children: [element] },
 		},
 		dom: container,
+		// Set old fiber as the one last saved
+		alternate: lastCommitedFiberTree,
 	};
 };
 
@@ -162,44 +167,6 @@ const createNodeFromFiber = (fiber: Fiber) => {
 };
 
 /**
- * Creates child fibers from the element's children and links them in a sibling chain.
- *
- *  Iterates through the element's children, creating a fiber for each child and linking
- *  the siblings together as a linked list.
- *
- *  fiber (parent)
- *    child --> sibling --> sibling --> ... --> sibling
- *
- * @param fiber - The parent fiber whose children will be converted into child fibers.
- * @returns The parent fiber with its `child` property set to the first child fiber, and all
- *          children linked via the `sibling` property.
- */
-const createChildFibers = (fiber: Fiber) => {
-	const { children } = fiber.element.props;
-
-	let previousSibling: Fiber | undefined;
-
-	children.forEach((child) => {
-		const childFiber: Fiber = {
-			element: child,
-			parent: fiber,
-		};
-
-		if (previousSibling === undefined) {
-			// First child
-			fiber.child = childFiber;
-		} else {
-			// Subsequent children - link as sibling of previous
-			previousSibling.sibling = childFiber;
-		}
-
-		previousSibling = childFiber;
-	});
-
-	return fiber;
-};
-
-/**
  * Finds the next fiber in a depth-first traversal of the fiber tree.
  *
  * Tries to find the next fiber in the depth-first traversal by checking the child first,
@@ -237,39 +204,4 @@ const findNextFiberInTraversal = (fiber: Fiber) => {
 
 	// If we reach the root, return undefined
 	return undefined;
-};
-
-/**
- * Commits the entire fiber tree to the DOM, starting from the root fiber.
- *
- * This function initiates the commit phase, which recursively traverses the fiber tree
- * and appends all fiber DOM nodes to their respective parent DOM nodes in the actual DOM.
- * This is called after all fibers have been processed in the work loop.
- *
- * @param rootFiber - The root fiber of the fiber tree to commit to the DOM.
- */
-const commitFiberRoot = (rootFiber: Fiber) => {
-	commitWork(rootFiber);
-};
-
-/**
- * Recursively commits a fiber and its descendants to the DOM.
- *
- * Traverses the fiber tree in a depth-first manner, appending each fiber's child DOM node
- * to the fiber's DOM node. Skips fibers that don't have a DOM node or a valid child.
- *
- * @param fiber - The fiber to commit. If undefined or if the fiber has no DOM node,
- *                the function returns early without processing.
- */
-const commitWork = (fiber?: Fiber) => {
-	// Early return if no fiber or no DOM
-	if (!fiber?.dom) return;
-
-	// Append to parent (skip for root)
-	if (fiber?.element.type !== ROOT_TYPE && fiber.parent?.dom) {
-		fiber.parent.dom.appendChild(fiber.dom);
-	}
-
-	commitWork(fiber.child);
-	commitWork(fiber.sibling);
 };
