@@ -10,7 +10,7 @@ const App = (
 		{RenderButton}
 		<br />
 		{/* Generate a very large list of elements */}
-		{LargeTree({ depth: 10, breadth: 2 })}
+		{LargeTree({ depth: 15, breadth: 2 })}
 	</div>
 );
 

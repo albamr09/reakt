@@ -262,12 +262,13 @@ const commitFiberRoot = (rootFiber: Fiber) => {
  *                the function returns early without processing.
  */
 const commitWork = (fiber?: Fiber) => {
-	const childDom = fiber?.child?.dom;
-	if (!fiber?.dom || !childDom) {
-		return;
-	}
+	// Early return if no fiber or no DOM
+	if (!fiber?.dom) return;
 
-	fiber.dom.appendChild(childDom);
+	// Append to parent (skip for root)
+	if (fiber?.element.type !== ROOT_TYPE && fiber.parent?.dom) {
+		fiber.parent.dom.appendChild(fiber.dom);
+	}
 
 	commitWork(fiber.child);
 	commitWork(fiber.sibling);
