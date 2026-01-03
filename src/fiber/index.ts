@@ -82,8 +82,11 @@ const performUnitOfWork = (fiber: Fiber): Fiber | undefined => {
 		return undefined;
 	}
 
-	fiber = createNodeFromFiber(fiber);
-	fiber = reconcileChildFibers(fiber);
+	// Only process if this element was not marked for deletion
+	if (fiber.effect !== "DELETION") {
+		fiber = createNodeFromFiber(fiber);
+		fiber = reconcileChildFibers(fiber);
+	}
 	return findNextFiberInTraversal(fiber);
 };
 
