@@ -5,7 +5,8 @@
 	"license": "MIT",
 	"scripts": {
 		"prebuild": "pnpm lint:check",
-		"build": "tsup",
+		"build": "NODE_ENV=production tsup",
+		"build:dev": "tsup",
 		"lint:check": "biome check src",
 		"serve": "serve build"
 	},

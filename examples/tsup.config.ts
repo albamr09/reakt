@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import fs from "fs/promises";
 import { glob } from "glob";
 import path from "path";
@@ -22,6 +23,8 @@ async function copyFiles(pattern: string, baseDir = ".") {
 	}
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export default defineConfig({
 	entry: ["src/**/*.{ts,tsx}"],
 	clean: true,
@@ -30,7 +33,7 @@ export default defineConfig({
 	outDir: BUILD_DIR,
 	// Bundles local library together with examples
 	noExternal: ["reakt"],
-	minify: true,
+	minify: isProduction,
 	sourcemap: false,
 	splitting: false,
 	dts: false,
