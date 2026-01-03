@@ -2,8 +2,9 @@ import { ROOT_TYPE } from "@reakt/constants";
 import { isPrimitiveElement } from "@reakt/element";
 import { commitFiberRoot } from "@reakt/fiber/commit";
 import { reconcileChildFibers } from "@reakt/fiber/reconciliation";
-import { lastCommitedFiberTree } from "@reakt/fiber/state";
-import { createNode, createPrimitiveNode, isTextHTMLNode } from "@reakt/node";
+import { getLastCommitFiberTree } from "@reakt/fiber/state";
+import { doesFiberHaveValidParent } from "@reakt/fiber/utils";
+import { createNode, createPrimitiveNode } from "@reakt/node";
 import type { Fiber, ReaktElement } from "@reakt/types";
 
 /**
@@ -82,11 +83,8 @@ const performUnitOfWork = (fiber: Fiber): Fiber | undefined => {
 		return undefined;
 	}
 
-	// Only process if this element was not marked for deletion
-	if (fiber.effect !== "DELETION") {
-		fiber = createNodeFromFiber(fiber);
-		fiber = reconcileChildFibers(fiber);
-	}
+	fiber = createNodeFromFiber(fiber);
+	fiber = reconcileChildFibers(fiber);
 	return findNextFiberInTraversal(fiber);
 };
 
@@ -116,30 +114,8 @@ export const createRootFiber = ({
 		},
 		dom: container,
 		// Set old fiber as the one last saved
-		alternate: lastCommitedFiberTree,
+		alternate: getLastCommitFiberTree(),
 	};
-};
-
-/**
- * Type guard that checks if a fiber has a valid parent for processing.
- *
- * A fiber has a valid parent if:
- * - It is a root element (root elements don't require a parent), OR
- * - It has a parent fiber with a DOM node that is an HTMLElement (not a Text node).
- *   Text nodes cannot have children in the DOM.
- *
- * @param fiber - The fiber to check for a valid parent.
- * @returns `true` if the fiber is a root element or has a valid parent with an HTMLElement DOM node.
- */
-const doesFiberHaveValidParent = (
-	fiber: Fiber,
-): fiber is Fiber & { parent: Fiber & { dom: HTMLElement } } => {
-	// The root element does not have a parent
-	if (fiber.element.type === ROOT_TYPE) {
-		return true;
-	}
-
-	return fiber.parent?.dom !== undefined && !isTextHTMLNode(fiber.parent.dom);
 };
 
 /**
