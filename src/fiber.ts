@@ -1,3 +1,4 @@
+import { ROOT_TYPE } from "@reakt/constants";
 import { isPrimitiveElement } from "@reakt/element";
 import { createNode, createPrimitiveNode, isTextHTMLNode } from "@reakt/node";
 import type { Fiber, ReaktElement } from "@reakt/types";
@@ -86,8 +87,8 @@ const performUnitOfWork = (fiber: Fiber): Fiber | undefined => {
 /**
  * Creates the initial root fiber for rendering, setting up the host root fiber structure.
  *
- * Creates a host root fiber that represents the container DOM element, and then creates
- * the root fiber for the element to be rendered.
+ * Creates a root fiber that represents the container DOM element, and then creates
+ * the root fiber child from the element to be rendered.
  *
  * @param container - The DOM container where the element will be rendered.
  * @param element - The root virtual DOM element to render.
@@ -100,26 +101,36 @@ export const createRootFiber = ({
 	container: HTMLElement;
 	element: ReaktElement;
 }): Fiber => {
-	// Create a host root element (sentinel) to represent the container
-	const hostRootElement: ReaktElement = {
-		type: "HOST_ROOT",
-		props: { children: [] },
-	};
-
-	const hostRootFiber: Fiber = {
-		dom: container,
-		element: hostRootElement,
-	};
-
 	return {
-		element,
-		parent: hostRootFiber,
+		// Create a root element to represent the container
+		element: {
+			type: ROOT_TYPE,
+			// Add the element as the children
+			props: { children: [element] },
+		},
+		dom: container,
 	};
 };
 
+/**
+ * Type guard that checks if a fiber has a valid parent for processing.
+ *
+ * A fiber has a valid parent if:
+ * - It is a root element (root elements don't require a parent), OR
+ * - It has a parent fiber with a DOM node that is an HTMLElement (not a Text node).
+ *   Text nodes cannot have children in the DOM.
+ *
+ * @param fiber - The fiber to check for a valid parent.
+ * @returns `true` if the fiber is a root element or has a valid parent with an HTMLElement DOM node.
+ */
 const doesFiberHaveValidParent = (
 	fiber: Fiber,
 ): fiber is Fiber & { parent: Fiber & { dom: HTMLElement } } => {
+	// The root element does not have a parent
+	if (fiber.element.type === ROOT_TYPE) {
+		return true;
+	}
+
 	return fiber.parent?.dom !== undefined && !isTextHTMLNode(fiber.parent.dom);
 };
 
@@ -135,6 +146,9 @@ const doesFiberHaveValidParent = (
  * @returns The fiber with its `dom` property set to the created DOM node.
  */
 const createNodeFromFiber = (fiber: Fiber) => {
+	// Create dom node only if it does not exist already
+	if (fiber.dom) return fiber;
+
 	let domNode: HTMLElement | Text;
 	if (isPrimitiveElement(fiber.element)) {
 		domNode = createPrimitiveNode({ element: fiber.element });
@@ -234,26 +248,26 @@ const findNextFiberInTraversal = (fiber: Fiber) => {
  *
  * @param rootFiber - The root fiber of the fiber tree to commit to the DOM.
  */
-export const commitFiberRoot = (rootFiber: Fiber) => {
+const commitFiberRoot = (rootFiber: Fiber) => {
 	commitWork(rootFiber);
 };
 
 /**
  * Recursively commits a fiber and its descendants to the DOM.
  *
- * Traverses the fiber tree in a depth-first manner, appending each fiber's DOM node
- * to its parent's DOM node. Skips fibers that don't have a DOM node or a valid parent.
+ * Traverses the fiber tree in a depth-first manner, appending each fiber's child DOM node
+ * to the fiber's DOM node. Skips fibers that don't have a DOM node or a valid child.
  *
  * @param fiber - The fiber to commit. If undefined or if the fiber has no DOM node,
  *                the function returns early without processing.
  */
 const commitWork = (fiber?: Fiber) => {
-	const domParent = fiber?.parent?.dom;
-	if (!fiber?.dom || !domParent) {
+	const childDom = fiber?.child?.dom;
+	if (!fiber?.dom || !childDom) {
 		return;
 	}
 
-	domParent.appendChild(fiber.dom);
+	fiber.dom.appendChild(childDom);
 
 	commitWork(fiber.child);
 	commitWork(fiber.sibling);

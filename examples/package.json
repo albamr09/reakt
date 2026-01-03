@@ -4,7 +4,7 @@
 	"author": "Alba Martínez Rodríguez",
 	"license": "MIT",
 	"scripts": {
-		"prebuild": "pnpm check",
+		"prebuild": "pnpm lint:check",
 		"build": "tsup",
 		"lint:check": "biome check src",
 		"serve": "serve build"
