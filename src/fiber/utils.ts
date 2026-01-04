@@ -1,6 +1,5 @@
 import { ROOT_TYPE } from "@reakt/constants";
-import { isTextHTMLNode } from "@reakt/node";
-import type { Fiber } from "@reakt/types";
+import type { ExtendableHTMLElement, Fiber, FiberText } from "@reakt/types";
 
 /**
  * Type guard that checks if a fiber has a valid parent for processing.
@@ -15,13 +14,15 @@ import type { Fiber } from "@reakt/types";
  */
 export const doesFiberHaveValidParent = (
 	fiber: Fiber,
-): fiber is Fiber & { parent: Fiber & { dom: HTMLElement } } => {
+): fiber is Fiber & {
+	parent: Fiber & { dom: NonNullable<ExtendableHTMLElement> };
+} => {
 	// The root element does not have a parent
 	if (fiber.element.type === ROOT_TYPE) {
 		return true;
 	}
 
-	return fiber.parent?.dom !== undefined && !isTextHTMLNode(fiber.parent.dom);
+	return fiber.parent?.dom !== undefined && !isTextFiber(fiber.parent);
 };
 
 /**
@@ -56,4 +57,14 @@ export const canAppendToParent = (
 	parent: NonNullable<Fiber["parent"]> & { dom: NonNullable<Fiber["dom"]> };
 } => {
 	return fiber.parent?.dom !== undefined && fiber.element.type !== ROOT_TYPE;
+};
+
+/**
+ * Type guard to check if the dom node of a fiber is a text node.
+ *
+ * @param fiber - The fiber to check
+ * @returns True if the dom node of the fiber is a text node
+ */
+export const isTextFiber = (fiber: Fiber): fiber is FiberText => {
+	return fiber.dom instanceof Text;
 };

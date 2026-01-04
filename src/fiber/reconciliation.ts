@@ -20,10 +20,10 @@ import { addOldFibersToDelete } from "./state";
 export const reconcileChildFibers = (fiber: Fiber) => {
 	// Build a map of old fibers for easy lookup
 	const oldFiberMap = createOldFibersMap(fiber);
-	const matchedOldFibers = new Set<Fiber>();
+	let matchedOldFibers = new Set<Fiber>();
 
 	// Create children from current fiber tree
-	createChildrenFibers({
+	matchedOldFibers = createChildrenFibers({
 		parent: fiber,
 		oldFiberMap,
 		matchedOldFibers,
@@ -79,6 +79,8 @@ const createOldFibersMap = (fiber: Fiber) => {
  * @param parent - The parent fiber whose children will be created.
  * @param oldFiberMap - A map of old fibers grouped by type for efficient matching.
  * @param matchedOldFibers - A set to track which old fibers have been matched to avoid duplicates.
+ *
+ * @returns The modificed set of old fibers that matched.
  */
 const createChildrenFibers = ({
 	parent,
@@ -120,6 +122,8 @@ const createChildrenFibers = ({
 
 		previousSibling = childFiber;
 	});
+
+	return matchedOldFibers;
 };
 
 /**

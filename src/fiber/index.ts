@@ -5,7 +5,7 @@ import { reconcileChildFibers } from "@reakt/fiber/reconciliation";
 import { getLastCommitFiberTree } from "@reakt/fiber/state";
 import { doesFiberHaveValidParent } from "@reakt/fiber/utils";
 import { createNode, createPrimitiveNode } from "@reakt/node";
-import type { Fiber, ReaktElement } from "@reakt/types";
+import type { ExtendableHTMLElement, Fiber, ReaktElement } from "@reakt/types";
 
 /**
  * Starts the work loop to process fibers and render them to the DOM.
@@ -112,7 +112,7 @@ export const createRootFiber = ({
 			// Add the element as the children
 			props: { children: [element] },
 		},
-		dom: container,
+		dom: container as ExtendableHTMLElement,
 		// Set old fiber as the one last saved
 		alternate: getLastCommitFiberTree(),
 	};
@@ -133,7 +133,7 @@ const createNodeFromFiber = (fiber: Fiber) => {
 	// Create dom node only if it does not exist already
 	if (fiber.dom) return fiber;
 
-	let domNode: HTMLElement | Text;
+	let domNode: Fiber["dom"];
 	if (isPrimitiveElement(fiber.element)) {
 		domNode = createPrimitiveNode({ element: fiber.element });
 	} else {

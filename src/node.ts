@@ -1,14 +1,8 @@
-import type { PrimitiveReaktElement, ReaktElement } from "@reakt/types";
-
-/**
- * Type guard to check if a node is a text node.
- *
- * @param node - The node to check
- * @returns True if the node is a text node
- */
-export const isTextHTMLNode = (node: HTMLElement | Text): node is Text => {
-	return node instanceof Text;
-};
+import type {
+	ExtendableHTMLElement,
+	PrimitiveReaktElement,
+	ReaktElement,
+} from "@reakt/types";
 
 /**
  * Creates a text node from a primitive element.
@@ -22,7 +16,7 @@ export const createPrimitiveNode = ({
 	element: PrimitiveReaktElement;
 }) => {
 	const { nodeValue } = element.props;
-	const domNode = document.createTextNode(nodeValue);
+	const domNode = document.createTextNode(`${nodeValue}`);
 	return domNode;
 };
 
@@ -35,9 +29,19 @@ export const createPrimitiveNode = ({
 export const createNode = ({ element }: { element: ReaktElement }) => {
 	const { children: _children, ...props } = element.props;
 
-	const domNode = document.createElement(element.type);
+	const domNode = createExtendableHTMLElement(element);
 	addProps({ node: domNode, props });
 	return domNode;
+};
+
+/**
+ * Creates an extendable HTML element from a virtual element.
+ *
+ * @param element - The virtual element to create an HTML element from
+ * @returns The created HTML element with extended type
+ */
+const createExtendableHTMLElement = (element: ReaktElement) => {
+	return document.createElement(element.type) as ExtendableHTMLElement;
 };
 
 /**
@@ -51,12 +55,10 @@ const addProps = <T extends Omit<ReaktElement["props"], "children">>({
 	node,
 	props,
 }: {
-	node: HTMLElement;
+	node: NonNullable<ExtendableHTMLElement>;
 	props: T;
 }) => {
 	Object.entries(props).forEach(([key, value]) => {
-		// TODO ALBA: fix this typing
-		//@ts-expect-error
 		node[key] = value;
 	});
 };

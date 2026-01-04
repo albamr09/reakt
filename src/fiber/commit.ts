@@ -3,8 +3,11 @@ import {
 	getOldFibersToDelete,
 	updateLastCommitFiberTree,
 } from "@reakt/fiber/state";
-import { canAppendToParent, checksIfFiberHasDom } from "@reakt/fiber/utils";
-import { isTextHTMLNode } from "@reakt/node";
+import {
+	canAppendToParent,
+	checksIfFiberHasDom,
+	isTextFiber,
+} from "@reakt/fiber/utils";
 import type { Fiber } from "@reakt/types";
 
 /**
@@ -69,18 +72,13 @@ const commitWork = (fiber?: Fiber) => {
 const commitUpdate = (fiber: Fiber) => {
 	if (!fiber.dom || !fiber.alternate) return;
 
-	const oldProps = fiber.alternate.element.props;
-	const newProps = fiber.element.props;
 
 	// Handle text nodes
-	if (isTextHTMLNode(fiber.dom)) {
-		// TODO: fix this
-		// @ts-expect-error
-		const newValue = newProps.nodeValue;
-		// TODO: fix this
-		// @ts-expect-error
-		if (newValue !== oldProps.nodeValue) {
-			fiber.dom.nodeValue = newValue;
+	if (isTextFiber(fiber) && isTextFiber(fiber.alternate)) {
+		const { nodeValue: newNodeValue } = fiber.element.props;
+		const { nodeValue: oldNodeValue } = fiber.alternate.element.props;
+		if (newNodeValue !== oldNodeValue) {
+			fiber.dom.nodeValue = `${newNodeValue}`;
 		}
 		return;
 	}
