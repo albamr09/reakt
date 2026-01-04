@@ -19,7 +19,7 @@ import type { Fiber } from "@reakt/types";
  *
  * @param rootFiber - The root fiber of the fiber tree to commit to the DOM.
  */
-export const commitFiberRoot = ({
+export const commitNewFiberTree = ({
 	rootFiber,
 	onFinish,
 }: {

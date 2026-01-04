@@ -1,6 +1,6 @@
 import { ROOT_TYPE } from "@reakt/constants";
 import { isPrimitiveElement } from "@reakt/lib/element";
-import { commitDeletion, commitFiberRoot } from "@reakt/lib/fiber/commit";
+import { commitDeletion, commitNewFiberTree } from "@reakt/lib/fiber/commit";
 import { reconcileChildFibers } from "@reakt/lib/fiber/reconciliation";
 import { doesFiberHaveValidParent } from "@reakt/lib/fiber/utils";
 import { createNode, createPrimitiveNode } from "@reakt/lib/node";
@@ -44,7 +44,7 @@ class FiberManager {
 			// When work loop finishes (all elements have been processed)
 			// commit to DOM
 			if (currentFiber === undefined && rootFiber) {
-				commitFiberRoot({
+				commitNewFiberTree({
 					rootFiber,
 					onFinish: (newRootFiber) => {
 						this.handleDeletedFibers();
