@@ -4,6 +4,7 @@ import type {
 	ReaktElement,
 	ReaktElementProps,
 } from "@reakt/types";
+import equal from "fast-deep-equal";
 
 /**
  * Creates a virtual DOM element with the specified type, props, and children.
@@ -94,7 +95,7 @@ export const isPrimitiveElement = (
  */
 export const checkIfPropIsListener = (
 	key: string,
-	value: unknown,
+	value: Omit<ReaktElementProps, "children">[string],
 ): value is EventListener => {
 	if (!key.startsWith("on") || key.length <= 2) {
 		return false;
@@ -118,4 +119,17 @@ export const mapPropKeyToListenerName = (
 	propKey: string,
 ): keyof HTMLElementEventMap => {
 	return propKey.slice(2).toLowerCase() as keyof HTMLElementEventMap;
+};
+
+export const hasChanged = (
+	newValue: Omit<ReaktElementProps, "children">[string],
+	oldValue: Omit<ReaktElementProps, "children">[string],
+): boolean => {
+	// For primitives use direct comparison
+	if (typeof oldValue !== "object" || oldValue === null) {
+		return oldValue !== newValue;
+	}
+
+	// For arrays/objects use deep equality
+	return !equal(oldValue, newValue);
 };

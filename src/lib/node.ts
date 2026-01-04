@@ -4,7 +4,11 @@ import type {
 	ReaktElement,
 	ReaktElementProps,
 } from "@reakt/types";
-import { checkIfPropIsListener, mapPropKeyToListenerName } from "./element";
+import {
+	checkIfPropIsListener,
+	hasChanged,
+	mapPropKeyToListenerName,
+} from "./element";
 
 /**
  * Creates a text node from a primitive element.
@@ -110,8 +114,11 @@ export const updateProps = ({
 		}
 
 		// Prop is being updated (only if value actually changed)
-		// TODO: this is shallow check
-		if (newValue !== undefined && newValue != null && oldValue !== newValue) {
+		if (
+			newValue !== undefined &&
+			newValue != null &&
+			hasChanged(newValue, oldValue)
+		) {
 			// If old value was a listener, remove it first
 			if (oldValue !== undefined && checkIfPropIsListener(key, oldValue)) {
 				removeProp(node, key, oldValue);

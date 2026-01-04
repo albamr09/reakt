@@ -151,6 +151,8 @@ class FiberManager {
 	 */
 	private createNodeFromFiber = (fiber: Fiber) => {
 		// Create dom node only if it does not exist already
+		// If it existed, it was created in the previous commit
+		// and it should only be updated
 		if (fiber.dom) return fiber;
 
 		let domNode: Fiber["dom"];
