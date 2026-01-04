@@ -25,6 +25,14 @@ const HelloElement = (value?: string) => {
 			<button {...buttonProps}>
 				Click to see a message, nothing appears if you do not crack the code :@
 			</button>
+			{value === "destroy" ? (
+				<p>Oh no! You have destroyed the click listener on the button :S</p>
+			) : undefined}
+			<p>
+				<span style="font-weight: bold;">Hint:</span> If you want to see a cool
+				message when you click start typing "secr" and end with{" "}
+				<span style="font-style: italic;">"ET"</span>...
+			</p>
 		</div>
 	);
 };
@@ -45,7 +53,7 @@ const rerender = (root: HTMLElement, value?: string) => {
 			/>
 			{HelloElement(value)}
 			<div>
-				<p>Hello</p>
+				<p>Important stuff goes here</p>
 			</div>
 		</div>
 	);

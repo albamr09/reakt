@@ -31,8 +31,8 @@ export const createPrimitiveNode = ({
 export const createNode = ({ element }: { element: ReaktElement }) => {
 	const { children: _children, ...props } = element.props;
 
-	const domNode = createExtendableHTMLElement(element);
-	addProps({ node: domNode, props });
+	let domNode = createExtendableHTMLElement(element);
+	domNode = addProps({ node: domNode, props });
 	return domNode;
 };
 
@@ -49,104 +49,114 @@ const createExtendableHTMLElement = (element: ReaktElement) => {
 /**
  * Adds properties to a DOM node.
  *
- * @template T - The type of the props object (excluding children)
  * @param node - The DOM node to add properties to
  * @param props - The properties to add to the node
  */
-const addProps = <T extends Omit<ReaktElement["props"], "children">>({
+const addProps = ({
 	node,
 	props,
 }: {
 	node: NonNullable<ExtendableHTMLElement>;
-	props: T;
+	props: Omit<ReaktElement["props"], "children">;
 }) => {
 	Object.entries(props).forEach(([key, value]) => {
-		if (checkIfPropIsListener(key, value)) {
-			// TODO: does this create multiple listeners?
-			const eventName = mapPropKeyToListenerName(key);
-			node.addEventListener(eventName, value);
-		} else {
-			node[key] = value;
-		}
+		setProp(node, key, value);
 	});
+	return node;
 };
 
 /**
  * Updates DOM node properties by adding new props, updating changed props, and removing old props.
  *
- * @template T - The type of the new props object
- * @template P - The type of the old props object
  * @param node - The DOM node to update
  * @param newProps - The new properties to apply
- * @param oldProps - The old properties to compare against (optional)
+ * @param oldProps - The old properties to compare against
  * @returns The updated DOM node
  */
-export const updateProps = <
-	T extends ReaktElementProps,
-	P extends ReaktElementProps,
->({
+export const updateProps = ({
 	node,
 	newProps,
 	oldProps,
 }: {
 	node: NonNullable<ExtendableHTMLElement>;
-	newProps: T;
-	oldProps: P;
+	newProps: Omit<ReaktElementProps, "children">;
+	oldProps: Omit<ReaktElementProps, "children">;
 }) => {
 	// Filter out children prop
 	const { children: _newChildren, ...newPropsFiltered } = newProps;
 	const { children: _oldChildren, ...oldPropsFiltered } = oldProps;
 
-	// TODO: make all this simpler
-	//  - Now logic seems duplicated: we check three times if a prop is a listener
-	//  - We go over props twice
+	// Collect all unique keys from both old and new props
+	const allKeys = new Set([
+		...Object.keys(newPropsFiltered),
+		...(oldPropsFiltered ? Object.keys(oldPropsFiltered) : []),
+	]);
 
-	// Addition & update
-	Object.entries(newPropsFiltered).forEach(([key, value]) => {
-		// Addition
-		if (!oldPropsFiltered?.[key] && value !== undefined && value != null) {
-			// Handle event listeners
-			if (checkIfPropIsListener(key, value)) {
-				node.addEventListener(mapPropKeyToListenerName(key), value);
-			} else {
-				node[key] = value;
-			}
+	// Single pass: process all keys once
+	allKeys.forEach((key) => {
+		const newValue = newPropsFiltered[key];
+		const oldValue = oldPropsFiltered[key];
+
+		// Remove
+		if (newValue === undefined && oldValue !== undefined) {
+			removeProp(node, key, oldValue);
 			return;
 		}
 
-		if (!oldPropsFiltered) return;
-
-		// TODO: this is shallow comparison :/
-		if (oldPropsFiltered[key] !== value) {
-			// Handle event listeners
-			if (checkIfPropIsListener(key, value)) {
-				const oldValue = oldPropsFiltered[key];
-				if (checkIfPropIsListener(key, oldValue)) {
-					node.removeEventListener(mapPropKeyToListenerName(key), oldValue);
-				}
-				node.addEventListener(mapPropKeyToListenerName(key), value);
-			} else {
-				node[key] = value;
-			}
+		// Add
+		if (oldValue === undefined && newValue !== undefined && newValue != null) {
+			setProp(node, key, newValue);
+			return;
 		}
-	});
 
-	if (!oldPropsFiltered) {
-		return node;
-	}
-
-	// Deletion
-	Object.entries(oldPropsFiltered).forEach(([key, value]) => {
-		// If prop exists do nothing
-		if (newProps?.[key]) return;
-
-		// Handle event listeners
-		if (checkIfPropIsListener(key, value)) {
-			node.removeEventListener(mapPropKeyToListenerName(key), value);
-		} else {
-			delete node[key];
+		// Prop is being updated (only if value actually changed)
+		// TODO: this is shallow check
+		if (newValue !== undefined && newValue != null && oldValue !== newValue) {
+			// If old value was a listener, remove it first
+			if (oldValue !== undefined && checkIfPropIsListener(key, oldValue)) {
+				removeProp(node, key, oldValue);
+			}
+			setProp(node, key, newValue);
 		}
 	});
 
 	return node;
+};
+
+/**
+ * Sets a property on a DOM node, handling both event listeners and regular properties.
+ *
+ * @param node - The DOM node to set the property on
+ * @param key - The property key
+ * @param value - The property value to set
+ */
+const setProp = (
+	node: ExtendableHTMLElement,
+	key: string,
+	value: Omit<ReaktElementProps, "children">[string],
+) => {
+	if (checkIfPropIsListener(key, value)) {
+		node.addEventListener(mapPropKeyToListenerName(key), value);
+	} else {
+		node[key] = value;
+	}
+};
+
+/**
+ * Removes a property from a DOM node, handling both event listeners and regular properties.
+ *
+ * @param node - The DOM node to remove the property from
+ * @param key - The property key
+ * @param value - The property value to remove (needed for event listeners to identify which listener to remove)
+ */
+const removeProp = (
+	node: ExtendableHTMLElement,
+	key: string,
+	value: Omit<ReaktElementProps, "children">[string],
+) => {
+	if (checkIfPropIsListener(key, value)) {
+		node.removeEventListener(mapPropKeyToListenerName(key), value);
+	} else {
+		delete node[key];
+	}
 };
