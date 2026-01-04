@@ -83,3 +83,39 @@ export const isPrimitiveElement = (
 ): element is PrimitiveReaktElement => {
 	return element.type === PRIMITIVE_ELEMENT_TYPE;
 };
+
+/**
+ * Type guard that checks if a prop is a valid event listener.
+ * Validates both the key (must be an event listener prop name) and value (must be a function).
+ *
+ * @param key - The prop key to check
+ * @param value - The prop value to check
+ * @returns True if both key and value are valid for an event listener, and narrows value to EventListener
+ */
+export const checkIfPropIsListener = (
+	key: string,
+	value: unknown,
+): value is EventListener => {
+	if (!key.startsWith("on") || key.length <= 2) {
+		return false;
+	}
+
+	if (typeof value !== "function") {
+		return false;
+	}
+
+	const nativeListenerName = mapPropKeyToListenerName(key);
+	return nativeListenerName in HTMLElement.prototype;
+};
+
+/**
+ * Maps a prop key (e.g., "onClick") to its native event listener name (e.g., "click").
+ *
+ * @param propKey - The prop key to map (must start with "on")
+ * @returns The native event listener name from HTMLElementEventMap
+ */
+export const mapPropKeyToListenerName = (
+	propKey: string,
+): keyof HTMLElementEventMap => {
+	return propKey.toLowerCase() as keyof HTMLElementEventMap;
+};

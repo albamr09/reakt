@@ -1,8 +1,10 @@
 import {
 	canAppendToParent,
 	checksIfFiberHasDom,
+	isHTMLElementFiber,
 	isTextFiber,
 } from "@reakt/lib/fiber/utils";
+import { updateProps } from "@reakt/lib/node";
 import type { Fiber } from "@reakt/types";
 
 /**
@@ -72,9 +74,6 @@ const commitWork = (fiber?: Fiber) => {
 const commitUpdate = (fiber: Fiber) => {
 	if (!fiber.dom || !fiber.alternate) return;
 
-	// biome-ignore lint/suspicious/noDebugger: development
-	debugger;
-
 	// Handle text nodes
 	if (isTextFiber(fiber) && isTextFiber(fiber.alternate)) {
 		const { nodeValue: newNodeValue } = fiber.element.props;
@@ -85,7 +84,15 @@ const commitUpdate = (fiber: Fiber) => {
 		return;
 	}
 
-	// TODO: Remove old props, update changed props, add new props
+	// Handle html nodes
+	if (isHTMLElementFiber(fiber)) {
+		const modifiedDOMNode = updateProps({
+			node: fiber.dom,
+			newProps: fiber.element.props,
+			oldProps: fiber.alternate.element.props,
+		});
+		fiber.dom = modifiedDOMNode;
+	}
 };
 
 /**

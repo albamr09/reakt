@@ -2,7 +2,9 @@ import type {
 	ExtendableHTMLElement,
 	PrimitiveReaktElement,
 	ReaktElement,
+	ReaktElementProps,
 } from "@reakt/types";
+import { checkIfPropIsListener, mapPropKeyToListenerName } from "./element";
 
 /**
  * Creates a text node from a primitive element.
@@ -59,6 +61,90 @@ const addProps = <T extends Omit<ReaktElement["props"], "children">>({
 	props: T;
 }) => {
 	Object.entries(props).forEach(([key, value]) => {
-		node[key] = value;
+		if (checkIfPropIsListener(key, value)) {
+			const eventName = mapPropKeyToListenerName(key);
+			// TODO: fix event listeners handling
+			node.addEventListener(eventName, value);
+		} else {
+			node[key] = value;
+		}
 	});
+};
+
+/**
+ * Updates DOM node properties by adding new props, updating changed props, and removing old props.
+ *
+ * @template T - The type of the new props object
+ * @template P - The type of the old props object
+ * @param node - The DOM node to update
+ * @param newProps - The new properties to apply
+ * @param oldProps - The old properties to compare against (optional)
+ * @returns The updated DOM node
+ */
+export const updateProps = <
+	T extends ReaktElementProps,
+	P extends ReaktElementProps,
+>({
+	node,
+	newProps,
+	oldProps,
+}: {
+	node: NonNullable<ExtendableHTMLElement>;
+	newProps: T;
+	oldProps: P;
+}) => {
+	// Filter out children prop
+	const { children: _newChildren, ...newPropsFiltered } = newProps;
+	const { children: _oldChildren, ...oldPropsFiltered } = oldProps;
+
+	// Addition & update
+	Object.entries(newPropsFiltered).forEach(([key, value]) => {
+		// Addition
+		if (!oldPropsFiltered?.[key] && value !== undefined && value != null) {
+			// Handle event listeners
+			if (checkIfPropIsListener(key, value)) {
+				// TODO: fix event listeners handling
+				node.addEventListener(mapPropKeyToListenerName(key), value);
+			} else {
+				node[key] = value;
+			}
+			return;
+		}
+
+		if (!oldPropsFiltered) return;
+
+		// TODO: this is shallow comparison :/
+		if (oldPropsFiltered[key] !== value) {
+			// Handle event listeners
+			// TODO: fix event listeners handling
+			if (checkIfPropIsListener(key, value)) {
+				const oldValue = oldPropsFiltered[key];
+				if (checkIfPropIsListener(key, oldValue)) {
+					node.removeEventListener(mapPropKeyToListenerName(key), oldValue);
+				}
+				node.addEventListener(mapPropKeyToListenerName(key), value);
+			} else {
+				node[key] = value;
+			}
+		}
+	});
+
+	if (!oldPropsFiltered) {
+		return node;
+	}
+
+	// Deletion
+	Object.entries(oldPropsFiltered).forEach(([key, value]) => {
+		// Handle event listeners
+		// TODO: fix event listeners handling
+		if (checkIfPropIsListener(key, value)) {
+			node.removeEventListener(mapPropKeyToListenerName(key), value);
+			return;
+		}
+		if (!newProps?.[key]) {
+			delete node[key];
+		}
+	});
+
+	return node;
 };

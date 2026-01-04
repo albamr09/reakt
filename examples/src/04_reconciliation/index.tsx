@@ -8,6 +8,20 @@ const HelloElement = (value?: string) => {
 	return (
 		<div>
 			<h2>Current value: {value}</h2>
+			<button
+				type="button"
+				onClick={
+					value === "secret"
+						? () => {
+								console.log("You found the secret value!");
+							}
+						: () => {
+								console.log("You are hovering");
+							}
+				}
+			>
+				Click to see a message
+			</button>
 		</div>
 	);
 };

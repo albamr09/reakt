@@ -68,3 +68,15 @@ export const canAppendToParent = (
 export const isTextFiber = (fiber: Fiber): fiber is FiberText => {
 	return fiber.dom instanceof Text;
 };
+
+/**
+ * Type guard to check if a fiber is associated with an HTML element.
+ *
+ * @param fiber - The fiber to check
+ * @returns True if the fiber's DOM node is an HTML element
+ */
+export const isHTMLElementFiber = (
+	fiber: Fiber,
+): fiber is Fiber & { dom: ExtendableHTMLElement } => {
+	return !isTextFiber(fiber) && fiber.dom instanceof HTMLElement;
+};
