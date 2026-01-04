@@ -47,7 +47,7 @@ class FiberManager {
 				commitNewFiberTree({
 					rootFiber,
 					onFinish: (newRootFiber) => {
-						this.handleDeletedFibers();
+						this.handleOldFibersToDelete();
 						this.lastCommitFiberTree = newRootFiber;
 					},
 				});
@@ -59,21 +59,6 @@ class FiberManager {
 		};
 
 		requestIdleCallback(workLoop);
-	};
-
-	/**
-	 * Handles deletion of all fibers marked for deletion during the commit phase.
-	 *
-	 * This is called as part of the commit phase after all UPDATE and PLACEMENT effects
-	 * have been applied, ensuring that deleted nodes are removed from the DOM.
-	 */
-	private handleDeletedFibers = () => {
-		// Delete old nodes
-		this.oldFibersToDelete.forEach((fiber) => {
-			commitDeletion(fiber);
-		});
-
-		this.oldFibersToDelete = [];
 	};
 
 	/**
@@ -231,6 +216,22 @@ class FiberManager {
 
 		// If we reach the root, return undefined
 		return undefined;
+	};
+
+	/**
+	 * Handles deletion of all fibers marked for deletion during the commit phase.
+	 *
+	 * This is called as part of the commit phase after all UPDATE and PLACEMENT effects
+	 * have been applied, ensuring that deleted nodes are removed from the DOM.
+	 */
+	private handleOldFibersToDelete = () => {
+		// Delete old nodes
+		this.oldFibersToDelete.forEach((fiber) => {
+			commitDeletion(fiber);
+		});
+
+		// Clear list
+		this.oldFibersToDelete = [];
 	};
 }
 
