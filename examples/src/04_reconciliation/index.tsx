@@ -5,22 +5,25 @@ const HelloElement = (value?: string) => {
 		return null;
 	}
 
+	const buttonProps = {
+		type: "button",
+		...(value !== "destroy" && {
+			onClick:
+				value === "secret"
+					? () => {
+							alert("You found the secret value!");
+						}
+					: () => {
+							console.log("You clicked!");
+						},
+		}),
+	};
+
 	return (
 		<div>
 			<h2>Current value: {value}</h2>
-			<button
-				type="button"
-				onClick={
-					value === "secret"
-						? () => {
-								console.log("You found the secret value!");
-							}
-						: () => {
-								console.log("You are hovering");
-							}
-				}
-			>
-				Click to see a message
+			<button {...buttonProps}>
+				Click to see a message, nothing appears if you do not crack the code :@
 			</button>
 		</div>
 	);

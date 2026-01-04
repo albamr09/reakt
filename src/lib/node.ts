@@ -62,8 +62,8 @@ const addProps = <T extends Omit<ReaktElement["props"], "children">>({
 }) => {
 	Object.entries(props).forEach(([key, value]) => {
 		if (checkIfPropIsListener(key, value)) {
+			// TODO: does this create multiple listeners?
 			const eventName = mapPropKeyToListenerName(key);
-			// TODO: fix event listeners handling
 			node.addEventListener(eventName, value);
 		} else {
 			node[key] = value;
@@ -97,13 +97,16 @@ export const updateProps = <
 	const { children: _newChildren, ...newPropsFiltered } = newProps;
 	const { children: _oldChildren, ...oldPropsFiltered } = oldProps;
 
+	// TODO: make all this simpler
+	//  - Now logic seems duplicated: we check three times if a prop is a listener
+	//  - We go over props twice
+
 	// Addition & update
 	Object.entries(newPropsFiltered).forEach(([key, value]) => {
 		// Addition
 		if (!oldPropsFiltered?.[key] && value !== undefined && value != null) {
 			// Handle event listeners
 			if (checkIfPropIsListener(key, value)) {
-				// TODO: fix event listeners handling
 				node.addEventListener(mapPropKeyToListenerName(key), value);
 			} else {
 				node[key] = value;
@@ -116,7 +119,6 @@ export const updateProps = <
 		// TODO: this is shallow comparison :/
 		if (oldPropsFiltered[key] !== value) {
 			// Handle event listeners
-			// TODO: fix event listeners handling
 			if (checkIfPropIsListener(key, value)) {
 				const oldValue = oldPropsFiltered[key];
 				if (checkIfPropIsListener(key, oldValue)) {
@@ -135,13 +137,13 @@ export const updateProps = <
 
 	// Deletion
 	Object.entries(oldPropsFiltered).forEach(([key, value]) => {
+		// If prop exists do nothing
+		if (newProps?.[key]) return;
+
 		// Handle event listeners
-		// TODO: fix event listeners handling
 		if (checkIfPropIsListener(key, value)) {
 			node.removeEventListener(mapPropKeyToListenerName(key), value);
-			return;
-		}
-		if (!newProps?.[key]) {
+		} else {
 			delete node[key];
 		}
 	});

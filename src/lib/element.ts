@@ -104,7 +104,7 @@ export const checkIfPropIsListener = (
 		return false;
 	}
 
-	const nativeListenerName = mapPropKeyToListenerName(key);
+	const nativeListenerName = key.toLowerCase();
 	return nativeListenerName in HTMLElement.prototype;
 };
 
@@ -117,5 +117,5 @@ export const checkIfPropIsListener = (
 export const mapPropKeyToListenerName = (
 	propKey: string,
 ): keyof HTMLElementEventMap => {
-	return propKey.toLowerCase() as keyof HTMLElementEventMap;
+	return propKey.slice(2).toLowerCase() as keyof HTMLElementEventMap;
 };

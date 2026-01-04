@@ -2,7 +2,7 @@
 import Reakt from "reakt";
 
 const RenderButton = (
-	<button type="button" onclick={() => console.log("button clicked!")}>
+	<button type="button" onClick={() => console.log("button clicked!")}>
 		Hello!
 	</button>
 );
