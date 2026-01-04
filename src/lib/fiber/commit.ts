@@ -1,13 +1,8 @@
 import {
-	clearOldFibersToDelete,
-	getOldFibersToDelete,
-	updateLastCommitFiberTree,
-} from "@reakt/fiber/state";
-import {
 	canAppendToParent,
 	checksIfFiberHasDom,
 	isTextFiber,
-} from "@reakt/fiber/utils";
+} from "@reakt/lib/fiber/utils";
 import type { Fiber } from "@reakt/types";
 
 /**
@@ -24,10 +19,15 @@ import type { Fiber } from "@reakt/types";
  *
  * @param rootFiber - The root fiber of the fiber tree to commit to the DOM.
  */
-export const commitFiberRoot = (rootFiber: Fiber) => {
+export const commitFiberRoot = ({
+	rootFiber,
+	onFinish,
+}: {
+	rootFiber: Fiber;
+	onFinish: (newRootFiber: Fiber) => void;
+}) => {
 	commitWork(rootFiber);
-	handleDeletedFibers();
-	updateLastCommitFiberTree(rootFiber);
+	onFinish(rootFiber);
 };
 
 /**
@@ -72,6 +72,8 @@ const commitWork = (fiber?: Fiber) => {
 const commitUpdate = (fiber: Fiber) => {
 	if (!fiber.dom || !fiber.alternate) return;
 
+	// biome-ignore lint/suspicious/noDebugger: development
+	debugger;
 
 	// Handle text nodes
 	if (isTextFiber(fiber) && isTextFiber(fiber.alternate)) {
@@ -107,21 +109,6 @@ const commitPlacement = (fiber: Fiber & { dom: NonNullable<Fiber["dom"]> }) => {
 };
 
 /**
- * Handles deletion of all fibers marked for deletion during the commit phase.
- *
- * This is called as part of the commit phase after all UPDATE and PLACEMENT effects
- * have been applied, ensuring that deleted nodes are removed from the DOM.
- */
-const handleDeletedFibers = () => {
-	// Delete old nodes
-	getOldFibersToDelete().forEach((fiber) => {
-		commitDeletion(fiber);
-	});
-
-	clearOldFibersToDelete();
-};
-
-/**
  * Recursively deletes a fiber and all its descendants from the DOM.
  *
  * The deletion order (children first, then the node itself) ensures that the DOM
@@ -130,7 +117,7 @@ const handleDeletedFibers = () => {
  * @param fiber - The fiber to delete. Must have a DOM node and a parent with a DOM node.
  *                Returns early if either is missing.
  */
-const commitDeletion = (fiber: Fiber) => {
+export const commitDeletion = (fiber: Fiber) => {
 	if (!fiber.dom || !fiber.parent?.dom) return;
 
 	// Recursively delete all children

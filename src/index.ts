@@ -1,3 +1,7 @@
-export { render } from "@reakt/dom";
-export { createElement } from "@reakt/element";
+import ReaktManager from "@reakt/stateful/reakt";
+
+// Types
 export { ReaktElement } from "@reakt/types";
+
+// Library instance as singleton
+export default new ReaktManager();

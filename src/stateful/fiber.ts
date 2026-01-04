@@ -1,0 +1,237 @@
+import { ROOT_TYPE } from "@reakt/constants";
+import { isPrimitiveElement } from "@reakt/lib/element";
+import { commitDeletion, commitFiberRoot } from "@reakt/lib/fiber/commit";
+import { reconcileChildFibers } from "@reakt/lib/fiber/reconciliation";
+import { doesFiberHaveValidParent } from "@reakt/lib/fiber/utils";
+import { createNode, createPrimitiveNode } from "@reakt/lib/node";
+import type { ExtendableHTMLElement, Fiber, ReaktElement } from "@reakt/types";
+
+class FiberManager {
+	/**
+	 * The last committed fiber tree from the previous render.
+	 */
+	private lastCommitFiberTree: Fiber | undefined;
+	/**
+	 * Queue of fibers marked for deletion.
+	 */
+	private oldFibersToDelete: Fiber[] = [];
+
+	constructor() {
+		this.lastCommitFiberTree = undefined;
+		this.oldFibersToDelete = [];
+	}
+
+	/**
+	 * Starts the work loop to process fibers and render them to the DOM.
+	 *
+	 * Begins processing the fiber tree using requestIdleCallback for incremental rendering.
+	 * The work loop will continue until all fibers have been processed or the browser
+	 * needs to yield control for other tasks.
+	 *
+	 * @param rootFiber - The root fiber to start processing from. Should be created using
+	 *                    `createRootFiber` before calling this function.
+	 */
+	public startWorkLoop = (rootFiber: Fiber): void => {
+		let currentFiber: Fiber | undefined = rootFiber;
+
+		const workLoop: IdleRequestCallback = (deadline) => {
+			let shouldYield = false;
+			while (currentFiber !== undefined && !shouldYield) {
+				currentFiber = this.performUnitOfWork(currentFiber);
+				shouldYield = deadline.timeRemaining() < 1;
+			}
+
+			// When work loop finishes (all elements have been processed)
+			// commit to DOM
+			if (currentFiber === undefined && rootFiber) {
+				commitFiberRoot({
+					rootFiber,
+					onFinish: (newRootFiber) => {
+						this.handleDeletedFibers();
+						this.lastCommitFiberTree = newRootFiber;
+					},
+				});
+				return;
+			}
+
+			// If there are still fibers to process, schedule the next work loop
+			requestIdleCallback(workLoop);
+		};
+
+		requestIdleCallback(workLoop);
+	};
+
+	/**
+	 * Handles deletion of all fibers marked for deletion during the commit phase.
+	 *
+	 * This is called as part of the commit phase after all UPDATE and PLACEMENT effects
+	 * have been applied, ensuring that deleted nodes are removed from the DOM.
+	 */
+	private handleDeletedFibers = () => {
+		// Delete old nodes
+		this.oldFibersToDelete.forEach((fiber) => {
+			commitDeletion(fiber);
+		});
+
+		this.oldFibersToDelete = [];
+	};
+
+	/**
+	 * Performs a unit of work on a fiber: creates its DOM node, creates child fibers, and returns the next fiber to process.
+	 *
+	 * This function processes a single fiber in the work loop by:
+	 * 1. Validating that the fiber has a valid parent with a DOM node
+	 * 2. Creating the fiber's DOM node (but not appending it - that happens in the commit phase)
+	 * 3. Creating child fibers from the element's children
+	 * 4. Returning the next fiber to process in the depth-first traversal
+	 *
+	 * @param fiber - The fiber to process. Must have a valid parent with a DOM node (HTMLElement, not Text).
+	 * @returns The next fiber to process in the traversal, or `undefined` if the fiber has an invalid parent
+	 *          (which stops processing of that branch). This can occur if:
+	 *          - The fiber's parent is undefined (should not happen in normal operation)
+	 *          - The fiber's parent has no DOM node
+	 *          - The fiber's parent is a Text node (text nodes cannot have children)
+	 * @throws {Error} If the fiber structure is invalid and cannot be recovered from.
+	 */
+	private performUnitOfWork = (fiber: Fiber): Fiber | undefined => {
+		if (!doesFiberHaveValidParent(fiber)) {
+			if (!fiber.parent) {
+				throw new Error(
+					`Fiber with element type "${fiber.element.type}" has no parent. ` +
+						`This should not occur in normal operation and indicates a malformed fiber tree.`,
+				);
+			}
+
+			if (!fiber.parent.dom) {
+				throw new Error(
+					`Fiber with element type "${fiber.element.type}" has a parent without a DOM node. ` +
+						`Parent element type: "${fiber.parent.element.type}". ` +
+						`This indicates the parent fiber was not properly committed to the DOM.`,
+				);
+			}
+
+			// Text node parent is a recoverable edge case - log warning and skip
+			console.warn(
+				`Fiber with element type "${fiber.element.type}" has a Text node parent, which cannot have children. ` +
+					`Skipping processing of this fiber branch.`,
+			);
+			return undefined;
+		}
+
+		fiber = this.createNodeFromFiber(fiber);
+		fiber = this.processChildFibers(fiber);
+		return this.findNextFiberInTraversal(fiber);
+	};
+
+	/**
+	 * Creates the initial root fiber for rendering, setting up the host root fiber structure.
+	 *
+	 * Creates a root fiber that represents the container DOM element, and then creates
+	 * the root fiber child from the element to be rendered.
+	 *
+	 * @param container - The DOM container where the element will be rendered.
+	 * @param element - The root virtual DOM element to render.
+	 * @returns The root fiber ready to be processed in the work loop.
+	 */
+	public createRootFiber = ({
+		container,
+		element,
+	}: {
+		container: HTMLElement;
+		element: ReaktElement;
+	}): Fiber => {
+		return {
+			// Create a root element to represent the container
+			element: {
+				type: ROOT_TYPE,
+				// Add the element as the children
+				props: { children: [element] },
+			},
+			dom: container as ExtendableHTMLElement,
+			// Set old fiber as the one last saved
+			alternate: this.lastCommitFiberTree,
+		};
+	};
+
+	/**
+	 * Creates a DOM node for a fiber based on its element type.
+	 *
+	 * Creates either a primitive DOM node (Text) or a regular DOM node (HTMLElement)
+	 * depending on the fiber's element type, and assigns it to the fiber's `dom` property.
+	 * The DOM node is not appended to the document at this stage - that happens during
+	 * the commit phase via `commitWork`.
+	 *
+	 * @param fiber - The fiber for which to create a DOM node.
+	 * @returns The fiber with its `dom` property set to the created DOM node.
+	 */
+	private createNodeFromFiber = (fiber: Fiber) => {
+		// Create dom node only if it does not exist already
+		if (fiber.dom) return fiber;
+
+		let domNode: Fiber["dom"];
+		if (isPrimitiveElement(fiber.element)) {
+			domNode = createPrimitiveNode({ element: fiber.element });
+		} else {
+			domNode = createNode({ element: fiber.element });
+		}
+
+		fiber.dom = domNode;
+
+		return fiber;
+	};
+
+	/**
+	 * Processes child fibers by reconciling them and queuing fibers for deletion.
+	 *
+	 * @param fiber - The parent fiber whose children will be processed
+	 * @returns The updated fiber with reconciled children
+	 */
+	private processChildFibers = (fiber: Fiber) => {
+		const { fiber: newFiber, fibersToDelete } = reconcileChildFibers(fiber);
+		fiber = newFiber;
+		this.oldFibersToDelete.push(...fibersToDelete);
+		return fiber;
+	};
+
+	/**
+	 * Finds the next fiber in a depth-first traversal of the fiber tree.
+	 *
+	 * Tries to find the next fiber in the depth-first traversal by checking the child first,
+	 * then the siblings, and finally the parent.
+	 *
+	 *  parent -> sibling
+	 *  ^
+	 *  |
+	 *  ...
+	 *  parent -> sibling
+	 *  ^
+	 *  |
+	 *  parent -> sibling
+	 *  ^
+	 *  |
+	 *  sibling
+	 *
+	 * @param fiber - The starting fiber from which to find the next fiber.
+	 * @returns The next fiber in the depth-first traversal, or undefined if the root fiber is reached.
+	 */
+	private findNextFiberInTraversal = (fiber: Fiber) => {
+		// Try child first (depth-first traversal)
+		if (fiber.child) {
+			return fiber.child;
+		}
+
+		// Then try sibling, or traverse up to the parent until we find a non-null sibling
+		let nextFiber: Fiber | undefined = fiber;
+		while (nextFiber) {
+			if (nextFiber.sibling) {
+				return nextFiber.sibling;
+			}
+			nextFiber = nextFiber.parent;
+		}
+
+		// If we reach the root, return undefined
+		return undefined;
+	};
+}
+
+export default FiberManager;

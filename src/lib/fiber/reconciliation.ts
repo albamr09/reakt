@@ -1,5 +1,4 @@
 import type { Fiber, ReaktElement } from "@reakt/types";
-import { addOldFibersToDelete } from "./state";
 
 /**
  * Reconciles child fibers by comparing the current element's children with the previous render's fibers.
@@ -35,9 +34,7 @@ export const reconcileChildFibers = (fiber: Fiber) => {
 		matchedOldFibers,
 	});
 
-	addOldFibersToDelete(fibersToDelete);
-
-	return fiber;
+	return { fiber, fibersToDelete };
 };
 
 /**

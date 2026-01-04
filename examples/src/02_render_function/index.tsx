@@ -1,4 +1,4 @@
-import * as Reakt from "reakt";
+import Reakt from "reakt";
 
 const Element = (
 	<div id="foo">

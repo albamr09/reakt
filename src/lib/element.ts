@@ -14,12 +14,6 @@ import type {
  * @param children - Variable number of child elements (strings are automatically converted to text elements, arrays are flattened)
  * @returns An element object with the specified type, props, and children
  *
- * @example
- * ```ts
- * createElement("div", { id: "container" }, "Hello", "World")
- * createElement("span", { className: "text" }, createElement("strong", {}, "Bold"))
- * createElement("div", {}, [elem1, elem2]) // Arrays are automatically flattened
- * ```
  */
 export const createElement = <T extends ReaktElementProps>(
 	type: ReaktElement<T>["type"],

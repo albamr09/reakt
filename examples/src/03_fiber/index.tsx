@@ -1,4 +1,4 @@
-import * as Reakt from "reakt";
+import Reakt from "reakt";
 import LargeTree from "./components/LargeTree";
 import RenderButton from "./components/RenderButton";
 import Spinner from "./components/Spinner";
