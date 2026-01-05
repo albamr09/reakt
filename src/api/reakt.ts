@@ -1,8 +1,8 @@
 import { createElement } from "@reakt/lib/element";
-import FiberManager from "@reakt/managers/fiber";
+import FiberManager from "@reakt/service/fiber";
 import type { ReaktElement, ReaktElementProps } from "@reakt/types";
 
-class ReaktManager {
+class Reakt {
 	private fiberManager: FiberManager;
 
 	constructor() {
@@ -43,4 +43,4 @@ class ReaktManager {
 	};
 }
 
-export default ReaktManager;
+export default Reakt;

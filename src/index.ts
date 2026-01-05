@@ -1,7 +1,7 @@
-import ReaktManager from "@reakt/managers/reakt";
+import Reakt from "@reakt/api/reakt";
 
 // Types
 export { ReaktElement } from "@reakt/types";
 
 // Library instance as singleton
-export default new ReaktManager();
+export default new Reakt();
