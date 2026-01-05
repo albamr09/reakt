@@ -144,12 +144,19 @@ const findFirstFiberWithDOM = (fiber: Fiber) => {
  * @param parent - The parent fiber containing the fiber to delete.
  */
 const commitDeletion = ({ fiber, parent }: { fiber: Fiber; parent: Fiber }) => {
-	if (fiber?.dom) {
+	// Find the parent with a DOM node, as the parent could be a function component
+	const parentWithDOM = findFirstFiberWithDOM(parent);
+	if (!parentWithDOM?.dom) {
+		console.warn(
+			`Could not find parent with DOM for deletion of ${fiber.element.type}`,
+		);
+		return;
+	}
+
+	if (fiber.dom) {
 		// Remove this node from parent
-		parent.dom?.removeChild(fiber.dom);
-	} else if (fiber?.child) {
-		// If the fiber has no DOM node, delete its child recursively, as with functional components, the child
-		// is the function itself, and the DOM node is the child within the function.
-		commitDeletion({ fiber, parent });
+		parentWithDOM.dom.removeChild(fiber.dom);
+	} else if (fiber.child) {
+		commitDeletion({ fiber: fiber.child, parent: parentWithDOM });
 	}
 };

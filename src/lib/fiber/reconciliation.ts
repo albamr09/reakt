@@ -62,6 +62,11 @@ const createChildrenFibers = ({
 	const { children } = parent.element.props;
 
 	children.forEach((child, index) => {
+		// Skip null/undefined children - they represent "render nothing"
+		if (child === null || child === undefined) {
+			return;
+		}
+
 		// Find old fiber not yet matched
 		const oldFiber = oldFiberMap.findFromeElement({ element: child, index });
 

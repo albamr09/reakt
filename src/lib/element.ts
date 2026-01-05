@@ -39,23 +39,24 @@ export const createElement = <T extends ReaktElementProps>(
  * @returns Flattened array of ReaktElement
  */
 const flattenChildren = (children: Array<ReaktElement>): ReaktElement[] => {
-	const result: ReaktElement[] = [];
+	return children.reduce(
+		(acc, child) => {
+			if (Array.isArray(child)) {
+				// Recursively flatten nested arrays
+				acc.push(...flattenChildren(child));
+			} else if (typeof child === "string") {
+				// Convert strings to primitive elements
+				acc.push(createPrimitiveElement(child));
+			} else if (child != null && typeof child === "object") {
+				// Keep ReaktElement objects as is
+				acc.push(child);
+			}
 
-	for (const child of children) {
-		if (Array.isArray(child)) {
-			// Recursively flatten nested arrays
-			result.push(...flattenChildren(child));
-		} else if (typeof child === "string") {
-			// Convert strings to primitive elements
-			result.push(createPrimitiveElement(child));
-		} else if (child != null && typeof child === "object") {
-			// Keep ReaktElement objects as is
-			result.push(child);
-		}
-		// Skip null, undefined, false, true (React-like behavior)
-	}
-
-	return result;
+			// Skip null, undefined, false, true
+			return acc;
+		},
+		[] as Array<ReaktElement>,
+	);
 };
 
 /**
@@ -161,6 +162,8 @@ export const createFuncionElementChildren = (
 	element: FunctionReaktElement,
 ): ReaktElement => {
 	const child = element.type(element.props);
-	element.props.children = [child];
+	// If function component returns null, render nothing (empty children array)
+	// This matches React's behavior where null means "render nothing"
+	element.props.children = child === null || child === undefined ? [] : [child];
 	return element;
 };

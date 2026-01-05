@@ -1,6 +1,10 @@
 import Reakt from "reakt";
 
-const HelloElement = (value?: string) => {
+type HelloElementProps = {
+	value?: string;
+};
+
+const HelloElement = ({ value }: HelloElementProps) => {
 	if (value === "delete") {
 		return null;
 	}
@@ -51,7 +55,7 @@ const rerender = (root: HTMLElement, value?: string) => {
 				oninput={(e: Event) => updateValue(e, root)}
 				placeholder="Write delete ^_^"
 			/>
-			{HelloElement(value)}
+			<HelloElement value={value} />
 			<div>
 				<p>Important stuff goes here</p>
 			</div>
