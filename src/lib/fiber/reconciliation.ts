@@ -1,4 +1,4 @@
-import { ReconciliationMap } from "@reakt/models/fiber/";
+import { ReconciliationMap } from "@reakt/models/fiber/reconciliationMap";
 import type { Fiber, ReaktElement } from "@reakt/types";
 
 /**
