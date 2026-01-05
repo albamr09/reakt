@@ -1,6 +1,6 @@
-import { defineConfig } from "vite";
-import { resolve, dirname } from "path";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+import { defineConfig } from "vite";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +15,7 @@ if (!exampleName) {
 
 const examplePath = resolve(__dirname, "src", exampleName);
 const htmlFile = resolve(examplePath, "index.html");
+const librarySourcePath = resolve(__dirname, "../src");
 
 export default defineConfig({
 	root: examplePath,
@@ -32,13 +33,18 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: [
+			// Alias "reakt" to source directory for hot reload
 			{
 				find: /^@reakt\/(.+)$/,
-				replacement: resolve(__dirname, "../src/$1"),
+				replacement: resolve(librarySourcePath, "$1"),
 			},
 			{
 				find: /^@reakt$/,
-				replacement: resolve(__dirname, "../src"),
+				replacement: librarySourcePath,
+			},
+			{
+				find: /^reakt$/,
+				replacement: resolve(librarySourcePath, "index.ts"),
 			},
 		],
 	},
