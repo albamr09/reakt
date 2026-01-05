@@ -1,4 +1,3 @@
-// biome-ignore lint/correctness/noUnusedImports: Very much important so we can call Reakt.whatever (e.g. createElement) when this is bundled
 import Reakt from "reakt";
 
 const Element = (
@@ -10,3 +9,15 @@ const Element = (
 
 // This outputs the result from calling Reakt.createElement!!
 console.log(Element);
+
+const App = () => {
+	return (
+		<div>
+			<p>Check the console to see the element structure!</p>
+		</div>
+	);
+};
+
+const root = document.getElementById("root");
+// biome-ignore lint/style/noNonNullAssertion: root element is always non-null
+Reakt.render(root!, <App />);

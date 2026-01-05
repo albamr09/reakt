@@ -16,8 +16,15 @@
 	},
 	"description": "Reakt Library",
 	"main": "build/index.js",
-	"module": "build/index.mjs",
+	"module": "build/index.js",
 	"types": "build/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./build/index.js",
+			"require": "./build/index.cjs",
+			"types": "./build/index.d.ts"
+		}
+	},
 	"files": [
 		"build"
 	],

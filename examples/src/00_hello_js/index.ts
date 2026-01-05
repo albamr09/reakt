@@ -9,6 +9,8 @@ const setup = () => {
 	};
 	const root = document.getElementById("root");
 
+	if (!root) return;
+
 	// We follow the same pattern
 	// 1. Create the h1 element
 	const h1Node = document.createElement(element.type);
@@ -22,6 +24,7 @@ const setup = () => {
 
 	// 4. Update the DOM by adding each element to the DOM
 	h1Node.appendChild(textNode);
-	root?.appendChild(h1Node);
+	root.appendChild(h1Node);
 };
+
 window.onload = setup;

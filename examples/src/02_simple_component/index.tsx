@@ -7,6 +7,10 @@ const Element = (
 	</div>
 );
 
+const App = () => {
+	return <div>{Element}</div>;
+};
+
 const root = document.getElementById("root");
 // biome-ignore lint/style/noNonNullAssertion: root element is always non-null
-Reakt.render(root!, Element);
+Reakt.render(root!, <App />);

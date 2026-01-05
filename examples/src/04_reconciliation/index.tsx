@@ -44,7 +44,7 @@ const rerender = (root: HTMLElement, value?: string) => {
 		rerender(root, inputValue);
 	};
 
-	const element = (
+	const App = () => (
 		<div>
 			<input
 				name="input"
@@ -58,7 +58,7 @@ const rerender = (root: HTMLElement, value?: string) => {
 		</div>
 	);
 
-	Reakt.render(root, element);
+	Reakt.render(root, <App />);
 };
 
 const root = document.getElementById("root");

@@ -3,20 +3,19 @@
 	"version": "1.0.0",
 	"author": "Alba Martínez Rodríguez",
 	"license": "MIT",
+	"type": "module",
 	"scripts": {
+		"dev": "node scripts/vite-wrapper.mjs",
+		"build": "node scripts/vite-wrapper.mjs build",
+		"preview": "node scripts/vite-wrapper.mjs preview",
 		"prebuild": "pnpm lint:check",
-		"build": "NODE_ENV=production tsup",
-		"build:dev": "tsup",
-		"lint:check": "biome check src",
-		"serve": "serve build"
+		"lint:check": "biome check src"
 	},
 	"dependencies": {
 		"reakt": "file:../"
 	},
 	"devDependencies": {
-		"glob": "^13.0.0",
-		"serve": "^14.2.5",
-		"tsup": "^8.5.1",
-		"typescript": "^5.9.3"
+		"typescript": "^5.9.3",
+		"vite": "^5.4.11"
 	}
 }
