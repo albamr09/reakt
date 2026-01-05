@@ -1,6 +1,7 @@
 import {
-	canAppendToParent,
-	checksIfFiberHasDom,
+	canAddFiberDOMToParent,
+	canFiberBeCommited,
+	hasFiberValidDOM,
 	isHTMLElementFiber,
 	isTextFiber,
 } from "@reakt/lib/fiber/utils";
@@ -40,7 +41,7 @@ export const commitNewFiberTree = (rootFiber: Fiber) => {
  */
 const commitWork = (fiber?: Fiber) => {
 	// Early return if no fiber or no DOM
-	if (!checksIfFiberHasDom(fiber)) return;
+	if (!canFiberBeCommited(fiber)) return;
 
 	if (fiber.effect === "UPDATE") {
 		commitUpdate(fiber);
@@ -51,7 +52,7 @@ const commitWork = (fiber?: Fiber) => {
 	}
 
 	if (fiber.effect === "DELETION") {
-		commitDeletion(fiber);
+		commitDeletion({ fiber, parent: fiber.parent });
 	}
 
 	commitWork(fiber.child);
@@ -100,16 +101,41 @@ const commitUpdate = (fiber: Fiber) => {
  *
  * @param fiber - The fiber to place in the DOM. Must have a non-null DOM node.
  */
-const commitPlacement = (fiber: Fiber & { dom: NonNullable<Fiber["dom"]> }) => {
+const commitPlacement = (fiber: Fiber) => {
 	// Only append to parent if it is not the root element
-	if (canAppendToParent(fiber)) {
-		fiber.parent.dom.appendChild(fiber.dom);
+	if (canAddFiberDOMToParent(fiber)) {
+		const parentWithDOM = findFirstFiberWithDOM(
+			fiber.parent,
+			(fiber) => fiber.parent,
+		);
+		if (!hasFiberValidDOM(parentWithDOM)) {
+			console.warn(
+				`Could not find any parent with a DOM for ${fiber.element.type}`,
+			);
+			return;
+		}
+		parentWithDOM.dom.appendChild(fiber.dom);
 
 		// If type changed, remove old DOM node
 		if (fiber.alternate?.dom && fiber.alternate.dom !== fiber.dom) {
-			fiber.parent.dom.removeChild(fiber.alternate.dom);
+			parentWithDOM.dom.removeChild(fiber.alternate.dom);
 		}
 	}
+};
+
+const findFirstFiberWithDOM = (
+	fiber: Fiber,
+	next: (fiber: Fiber) => Fiber | undefined,
+) => {
+	if (fiber.dom) {
+		return fiber;
+	}
+
+	const nextFiber = next(fiber);
+
+	if (!nextFiber) return;
+
+	return findFirstFiberWithDOM(nextFiber, next);
 };
 
 /**
@@ -121,9 +147,12 @@ const commitPlacement = (fiber: Fiber & { dom: NonNullable<Fiber["dom"]> }) => {
  * @param fiber - The fiber to delete. Must have a DOM node and a parent with a DOM node.
  *                Returns early if either is missing.
  */
-const commitDeletion = (fiber: Fiber) => {
-	if (!fiber.dom || !fiber.parent?.dom) return;
-
-	// Remove this node from parent
-	fiber.parent.dom.removeChild(fiber.dom);
+const commitDeletion = ({ fiber, parent }: { fiber: Fiber; parent: Fiber }) => {
+	if (fiber?.dom) {
+		// Remove this node from parent
+		parent.dom?.removeChild(fiber.dom);
+	} else if (fiber?.child) {
+		// Find any child with dom
+		commitDeletion({ fiber, parent });
+	}
 };

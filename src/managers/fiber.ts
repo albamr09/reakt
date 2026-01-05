@@ -83,14 +83,6 @@ class FiberManager {
 				);
 			}
 
-			if (!fiber.parent.dom) {
-				throw new Error(
-					`Fiber with element type "${fiber.element.type}" has a parent without a DOM node. ` +
-						`Parent element type: "${fiber.parent.element.type}". ` +
-						`This indicates the parent fiber was not properly committed to the DOM.`,
-				);
-			}
-
 			// Text node parent is a recoverable edge case - log warning and skip
 			console.warn(
 				`Fiber with element type "${fiber.element.type}" has a Text node parent, which cannot have children. ` +
@@ -99,7 +91,14 @@ class FiberManager {
 			return undefined;
 		}
 
-		fiber = this.createNodeFromFiber(fiber);
+		// If it is not a function, create node normally
+		if (typeof fiber.element.type !== "function") {
+			fiber = this.createNodeFromFiber(fiber);
+		} else {
+			// Else call function to create children, and update
+			const children = fiber.element.type(fiber.element.props);
+			fiber.element.props.children = [children];
+		}
 		fiber = this.processChildFibers(fiber);
 		return this.findNextFiberInTraversal(fiber);
 	};

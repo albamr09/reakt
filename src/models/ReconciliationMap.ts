@@ -57,8 +57,8 @@ class ReconciliationMap {
 	 * @param element - The element to get the type from.
 	 * @returns The element type as a string.
 	 */
-	private getFirstLevelIndex = (element: ReaktElement) => {
-		return element.type;
+	private getFirstLevelIndex = (element: ReaktElement): string => {
+		return typeof element.type === "function" ? "function" : element.type;
 	};
 
 	/**
@@ -67,8 +67,11 @@ class ReconciliationMap {
 	 * @param index - Fallback index if no valid key exists.
 	 * @returns The key as a string, or the index if no valid key.
 	 */
-	private getSecondLevelIndex = (element: ReaktElement, index: number) => {
-		const key = element.props.key;
+	private getSecondLevelIndex = (
+		element: ReaktElement,
+		index: number,
+	): string => {
+		const key = element.props?.key;
 
 		return key && typeof key !== "object" && typeof key !== "function"
 			? `${key}`

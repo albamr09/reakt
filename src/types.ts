@@ -7,7 +7,7 @@ export interface ReaktElement<T extends ReaktElementProps = ReaktElementProps> {
 	/**
 	 * The type of the element (e.g., "div", "span", or a component name).
 	 */
-	type: string;
+	type: string | ((props?: T) => ReaktElement);
 	/**
 	 * The properties/attributes of the element.
 	 * Can include standard HTML attributes, custom properties, and a `children` array.

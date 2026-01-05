@@ -15,25 +15,28 @@ import type { ExtendableHTMLElement, Fiber, FiberText } from "@reakt/types";
 export const doesFiberHaveValidParent = (
 	fiber: Fiber,
 ): fiber is Fiber & {
-	parent: Fiber & { dom: NonNullable<ExtendableHTMLElement> };
+	parent: Fiber;
 } => {
 	// The root element does not have a parent
 	if (fiber.element.type === ROOT_TYPE) {
 		return true;
 	}
 
-	return fiber.parent?.dom !== undefined && !isTextFiber(fiber.parent);
+	return fiber.parent !== undefined && !isTextFiber(fiber.parent);
 };
 
 /**
- * Type guard that checks if a fiber exists and has a DOM node.
+ * Type guard that checks if a fiber exists.
  *
  * @param fiber - The fiber to check. Can be `undefined`.
  */
-export const checksIfFiberHasDom = (
+export const canFiberBeCommited = (
 	fiber?: Fiber,
-): fiber is Fiber & { dom: NonNullable<Fiber["dom"]> } => {
-	return fiber !== undefined && fiber.dom !== undefined && fiber.dom !== null;
+): fiber is Fiber & { parent: NonNullable<Fiber["parent"]> } => {
+	return (
+		(fiber && fiber.parent !== undefined && fiber.parent != null) ||
+		fiber?.element.type === ROOT_TYPE
+	);
 };
 
 /**
@@ -51,12 +54,25 @@ export const checksIfFiberHasDom = (
  *          narrowing the type to include a non-null parent with a non-null DOM node.
  *          Returns `false` if the fiber is the root element or lacks a parent with a DOM node.
  */
-export const canAppendToParent = (
+export const canAddFiberDOMToParent = (
 	fiber: Fiber,
 ): fiber is Fiber & {
-	parent: NonNullable<Fiber["parent"]> & { dom: NonNullable<Fiber["dom"]> };
+	dom: NonNullable<Fiber["dom"]>;
+	parent: NonNullable<Fiber["parent"]>;
 } => {
-	return fiber.parent?.dom !== undefined && fiber.element.type !== ROOT_TYPE;
+	return (
+		fiber.element.type !== ROOT_TYPE &&
+		fiber.dom !== undefined &&
+		fiber.dom != null &&
+		fiber?.parent !== undefined &&
+		fiber.parent != null
+	);
+};
+
+export const hasFiberValidDOM = (
+	fiber?: Fiber,
+): fiber is Fiber & { dom: NonNullable<Fiber["dom"]> } => {
+	return fiber?.dom !== undefined;
 };
 
 /**
