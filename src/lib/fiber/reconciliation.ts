@@ -1,3 +1,4 @@
+import { ReconciliationMap } from "@reakt/models/fiber/";
 import type { Fiber, ReaktElement } from "@reakt/types";
 
 /**
@@ -18,7 +19,7 @@ import type { Fiber, ReaktElement } from "@reakt/types";
  */
 export const reconcileChildFibers = (fiber: Fiber) => {
 	// Build a map of old fibers for easy lookup
-	const oldFiberMap = createOldFibersMap(fiber);
+	const oldFiberMap = new ReconciliationMap({ fiber });
 	let matchedOldFibers = new Set<Fiber>();
 
 	// Create children from current fiber tree
@@ -35,36 +36,6 @@ export const reconcileChildFibers = (fiber: Fiber) => {
 	});
 
 	return { fiber, fibersToDelete };
-};
-
-/**
- * Creates a map of old fibers from the previous render, grouped by element type.
- *
- * @param fiber - The parent fiber whose alternate (previous render) children will be mapped.
- * @returns A Map where keys are element types (strings) and values are arrays of fibers
- *          with that type from the previous render.
- */
-const createOldFibersMap = (fiber: Fiber) => {
-	const oldFiberMap = new Map<string, Fiber[]>();
-	let currentOldFiber = fiber.alternate?.child;
-
-	// Iterate over child + linked list of siblings creating an
-	// entry per type of element
-	while (currentOldFiber) {
-		const type = currentOldFiber.element.type;
-
-		// Initialize list if needed
-		if (!oldFiberMap.has(type)) {
-			oldFiberMap.set(type, []);
-		}
-
-		// Update entry with fiber
-		oldFiberMap.get(type)?.push(currentOldFiber);
-
-		// Move to next sibling on linked list
-		currentOldFiber = currentOldFiber.sibling;
-	}
-	return oldFiberMap;
 };
 
 /**
@@ -85,18 +56,18 @@ const createChildrenFibers = ({
 	matchedOldFibers,
 }: {
 	parent: Fiber;
-	oldFiberMap: Map<string, Fiber[]>;
+	oldFiberMap: ReconciliationMap;
 	matchedOldFibers: Set<Fiber>;
 }) => {
 	let previousSibling: Fiber | undefined;
 	const { children } = parent.element.props;
 
-	children.forEach((child) => {
+	// biome-ignore lint/suspicious/noDebugger: developemtn
+	debugger;
+
+	children.forEach((child, index) => {
 		// Find old fiber not yet matched
-		const oldFibersCandidates = oldFiberMap.get(child.type) || [];
-		const oldFiber = oldFibersCandidates.find(
-			(candidate) => !matchedOldFibers.has(candidate),
-		);
+		const oldFiber = oldFiberMap.findFromeElement({ element: child, index });
 
 		// Update set of matches
 		if (oldFiber) {

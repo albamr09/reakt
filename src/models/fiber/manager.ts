@@ -6,7 +6,7 @@ import { doesFiberHaveValidParent } from "@reakt/lib/fiber/utils";
 import { createNode, createPrimitiveNode } from "@reakt/lib/node";
 import type { ExtendableHTMLElement, Fiber, ReaktElement } from "@reakt/types";
 
-class FiberManager {
+export class FiberManager {
 	/**
 	 * The last committed fiber tree from the previous render.
 	 */
@@ -236,5 +236,3 @@ class FiberManager {
 		this.oldFibersToDelete = [];
 	};
 }
-
-export default FiberManager;

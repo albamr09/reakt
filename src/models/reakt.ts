@@ -1,5 +1,5 @@
 import { createElement } from "@reakt/lib/element";
-import FiberManager from "@reakt/stateful/fiber";
+import { FiberManager } from "@reakt/models/fiber";
 import type { ReaktElement, ReaktElementProps } from "@reakt/types";
 
 class ReaktManager {

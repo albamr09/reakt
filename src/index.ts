@@ -1,4 +1,4 @@
-import ReaktManager from "@reakt/stateful/reakt";
+import ReaktManager from "@reakt/models/reakt";
 
 // Types
 export { ReaktElement } from "@reakt/types";
