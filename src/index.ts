@@ -1,4 +1,4 @@
-import ReaktManager from "@reakt/models/reakt";
+import ReaktManager from "@reakt/managers/reakt";
 
 // Types
 export { ReaktElement } from "@reakt/types";

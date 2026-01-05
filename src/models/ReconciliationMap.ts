@@ -1,6 +1,6 @@
 import type { Fiber, ReaktElement } from "@reakt/types";
 
-export class ReconciliationMap {
+class ReconciliationMap {
 	private fiberMap: Map<string, Map<string, Fiber>>;
 
 	constructor({ fiber }: { fiber: Fiber }) {
@@ -95,3 +95,5 @@ export class ReconciliationMap {
 		return fibersOfGivenType?.get(secondLevelIndex);
 	};
 }
+
+export default ReconciliationMap;
