@@ -21,15 +21,8 @@ import type { Fiber } from "@reakt/types";
  *
  * @param rootFiber - The root fiber of the fiber tree to commit to the DOM.
  */
-export const commitNewFiberTree = ({
-	rootFiber,
-	onFinish,
-}: {
-	rootFiber: Fiber;
-	onFinish: (newRootFiber: Fiber) => void;
-}) => {
+export const commitNewFiberTree = (rootFiber: Fiber) => {
 	commitWork(rootFiber);
-	onFinish(rootFiber);
 };
 
 /**
@@ -55,6 +48,10 @@ const commitWork = (fiber?: Fiber) => {
 
 	if (fiber.effect === "PLACEMENT") {
 		commitPlacement(fiber);
+	}
+
+	if (fiber.effect === "DELETION") {
+		commitDeletion(fiber);
 	}
 
 	commitWork(fiber.child);
@@ -124,16 +121,9 @@ const commitPlacement = (fiber: Fiber & { dom: NonNullable<Fiber["dom"]> }) => {
  * @param fiber - The fiber to delete. Must have a DOM node and a parent with a DOM node.
  *                Returns early if either is missing.
  */
-export const commitDeletion = (fiber: Fiber) => {
+const commitDeletion = (fiber: Fiber) => {
 	if (!fiber.dom || !fiber.parent?.dom) return;
 
-	// Recursively delete all children
-	let child = fiber.child;
-	while (child) {
-		commitDeletion(child);
-		child = child.sibling;
-	}
-
-	// Then remove this node from parent
+	// Remove this node from parent
 	fiber.parent.dom.removeChild(fiber.dom);
 };

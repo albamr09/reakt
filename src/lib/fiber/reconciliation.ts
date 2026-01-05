@@ -62,9 +62,6 @@ const createChildrenFibers = ({
 	let previousSibling: Fiber | undefined;
 	const { children } = parent.element.props;
 
-	// biome-ignore lint/suspicious/noDebugger: developemtn
-	debugger;
-
 	children.forEach((child, index) => {
 		// Find old fiber not yet matched
 		const oldFiber = oldFiberMap.findFromeElement({ element: child, index });
