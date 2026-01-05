@@ -7,13 +7,28 @@ export interface ReaktElement<T extends ReaktElementProps = ReaktElementProps> {
 	/**
 	 * The type of the element (e.g., "div", "span", or a component name).
 	 */
-	type: string | ((props?: T) => ReaktElement);
+	type: string;
 	/**
 	 * The properties/attributes of the element.
 	 * Can include standard HTML attributes, custom properties, and a `children` array.
 	 */
 	props: T;
 }
+
+/**
+ * Represents a function element in the Reakt library.
+ * The type is a function that takes props and returns a ReaktElement.
+ * @template T - The type of the props object
+ */
+export type FunctionReaktElement<
+	T extends ReaktElementProps = ReaktElementProps,
+> = ReaktElement<
+	T & {
+		children: ReaktElement[];
+	}
+> & {
+	type: (props?: T) => ReaktElement<T>;
+};
 
 /**
  * Represents a primitive (text) element with a fixed structure.

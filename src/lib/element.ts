@@ -1,5 +1,6 @@
 import { PRIMITIVE_ELEMENT_TYPE } from "@reakt/constants";
 import type {
+	FunctionReaktElement,
 	PrimitiveReaktElement,
 	ReaktElement,
 	ReaktElementProps,
@@ -121,6 +122,12 @@ export const mapPropKeyToListenerName = (
 	return propKey.slice(2).toLowerCase() as keyof HTMLElementEventMap;
 };
 
+/**
+ * Checks if a prop value has changed between renders.
+ * @param newValue - The new prop value.
+ * @param oldValue - The old prop value.
+ * @returns `true` if the values differ (uses deep equality for objects/arrays).
+ */
 export const hasChanged = (
 	newValue: Omit<ReaktElementProps, "children">[string],
 	oldValue: Omit<ReaktElementProps, "children">[string],
@@ -132,4 +139,28 @@ export const hasChanged = (
 
 	// For arrays/objects use deep equality
 	return !equal(oldValue, newValue);
+};
+
+/**
+ * Type guard to check if an element is a function element.
+ * @param element - The element to check.
+ * @returns `true` if the element type is a function.
+ */
+export const isFunctionElement = (
+	element: ReaktElement,
+): element is FunctionReaktElement => {
+	return typeof element.type === "function";
+};
+
+/**
+ * Creates children for a function element by calling the function with its props.
+ * @param element - The function element to create children for.
+ * @returns The element with its children populated.
+ */
+export const createFuncionElementChildren = (
+	element: FunctionReaktElement,
+): ReaktElement => {
+	const child = element.type(element.props);
+	element.props.children = [child];
+	return element;
 };

@@ -32,6 +32,7 @@ export const commitNewFiberTree = (rootFiber: Fiber) => {
  * Traverses the fiber tree in a depth-first manner, applying fiber effects to the DOM:
  * - For fibers with "UPDATE" effect: updates the DOM node's properties based on changed props.
  * - For fibers with "PLACEMENT" effect: appends the fiber's DOM node to its parent DOM node.
+ * - For fibers with "DELETION" effect: removes the fiber's DOM node from its parent DOM node.
  *
  * After processing the current fiber's effects, recursively processes its child and sibling fibers.
  * Skips fibers that don't have a DOM node, returning early without processing.
@@ -104,10 +105,9 @@ const commitUpdate = (fiber: Fiber) => {
 const commitPlacement = (fiber: Fiber) => {
 	// Only append to parent if it is not the root element
 	if (canAddFiberDOMToParent(fiber)) {
-		const parentWithDOM = findFirstFiberWithDOM(
-			fiber.parent,
-			(fiber) => fiber.parent,
-		);
+		// Find the first parent with a DOM node, as with functional components, the parent
+		// is the function itself, and the DOM node is the parent of the function.
+		const parentWithDOM = findFirstFiberWithDOM(fiber.parent);
 		if (!hasFiberValidDOM(parentWithDOM)) {
 			console.warn(
 				`Could not find any parent with a DOM for ${fiber.element.type}`,
@@ -123,36 +123,33 @@ const commitPlacement = (fiber: Fiber) => {
 	}
 };
 
-const findFirstFiberWithDOM = (
-	fiber: Fiber,
-	next: (fiber: Fiber) => Fiber | undefined,
-) => {
+/**
+ * Recursively finds the first ancestor fiber with a DOM node.
+ * @param fiber - The fiber to start searching from.
+ * @returns The first fiber with a DOM node, or undefined if none found.
+ */
+const findFirstFiberWithDOM = (fiber: Fiber) => {
 	if (fiber.dom) {
 		return fiber;
 	}
 
-	const nextFiber = next(fiber);
+	if (!fiber.parent) return;
 
-	if (!nextFiber) return;
-
-	return findFirstFiberWithDOM(nextFiber, next);
+	return findFirstFiberWithDOM(fiber.parent);
 };
 
 /**
- * Recursively deletes a fiber and all its descendants from the DOM.
- *
- * The deletion order (children first, then the node itself) ensures that the DOM
- * tree is properly cleaned up from the leaves to the root.
- *
- * @param fiber - The fiber to delete. Must have a DOM node and a parent with a DOM node.
- *                Returns early if either is missing.
+ * Deletes a fiber from the DOM.
+ * @param fiber - The fiber to delete.
+ * @param parent - The parent fiber containing the fiber to delete.
  */
 const commitDeletion = ({ fiber, parent }: { fiber: Fiber; parent: Fiber }) => {
 	if (fiber?.dom) {
 		// Remove this node from parent
 		parent.dom?.removeChild(fiber.dom);
 	} else if (fiber?.child) {
-		// Find any child with dom
+		// If the fiber has no DOM node, delete its child recursively, as with functional components, the child
+		// is the function itself, and the DOM node is the child within the function.
 		commitDeletion({ fiber, parent });
 	}
 };

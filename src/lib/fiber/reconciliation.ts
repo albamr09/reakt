@@ -45,10 +45,9 @@ export const reconcileChildFibers = (fiber: Fiber) => {
  * (if available), creates a new child fiber, and links them together as siblings.
  *
  * @param parent - The parent fiber whose children will be created.
- * @param oldFiberMap - A map of old fibers grouped by type for efficient matching.
- * @param matchedOldFibers - A set to track which old fibers have been matched to avoid duplicates.
- *
- * @returns The modificed set of old fibers that matched.
+ * @param oldFiberMap - A map of old fibers grouped by type for matching.
+ * @param matchedOldFibers - A set to track matched old fibers.
+ * @returns The modified set of matched old fibers.
  */
 const createChildrenFibers = ({
 	parent,
@@ -101,7 +100,7 @@ const createChildrenFibers = ({
  * @param element - The new element to create a fiber for
  * @param oldFiber - The old fiber from the previous render (optional if new element).
  * @param parent - The parent fiber that will contain this child fiber.
- * @returns A new fiber with the appropriate `effect` property set based on the reconciliation result.
+ * @returns A new fiber with UPDATE or PLACEMENT effect.
  */
 const createChildFiber = ({
 	element,
@@ -141,7 +140,8 @@ const createChildFiber = ({
  * Finds old fibers that did not match with any fiber on the current tree. This will be stored for deletion.
  *
  * @param parent - The parent fiber whose unmatched old children will be marked for deletion.
- * @param matchedOldFibers - A set of old fibers that were already matched with new elements.
+ * @param matchedOldFibers - A set of old fibers that were already matched.
+ * @returns An array of fibers marked for deletion.
  */
 const createOldFibersToDelete = ({
 	parent,

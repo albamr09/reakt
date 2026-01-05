@@ -1,5 +1,9 @@
 import { ROOT_TYPE } from "@reakt/constants";
-import { isPrimitiveElement } from "@reakt/lib/element";
+import {
+	createFuncionElementChildren,
+	isFunctionElement,
+	isPrimitiveElement,
+} from "@reakt/lib/element";
 import { commitNewFiberTree } from "@reakt/lib/fiber/commit";
 import { reconcileChildFibers } from "@reakt/lib/fiber/reconciliation";
 import { doesFiberHaveValidParent } from "@reakt/lib/fiber/utils";
@@ -62,7 +66,7 @@ class FiberManager {
 	 *
 	 * This function processes a single fiber in the work loop by:
 	 * 1. Validating that the fiber has a valid parent with a DOM node
-	 * 2. Creating the fiber's DOM node (but not appending it - that happens in the commit phase)
+	 * 2. Creating the fiber's DOM node
 	 * 3. Creating child fibers from the element's children
 	 * 4. Returning the next fiber to process in the depth-first traversal
 	 *
@@ -70,7 +74,6 @@ class FiberManager {
 	 * @returns The next fiber to process in the traversal, or `undefined` if the fiber has an invalid parent
 	 *          (which stops processing of that branch). This can occur if:
 	 *          - The fiber's parent is undefined (should not happen in normal operation)
-	 *          - The fiber's parent has no DOM node
 	 *          - The fiber's parent is a Text node (text nodes cannot have children)
 	 * @throws {Error} If the fiber structure is invalid and cannot be recovered from.
 	 */
@@ -91,13 +94,10 @@ class FiberManager {
 			return undefined;
 		}
 
-		// If it is not a function, create node normally
-		if (typeof fiber.element.type !== "function") {
-			fiber = this.createNodeFromFiber(fiber);
+		if (isFunctionElement(fiber.element)) {
+			fiber.element = createFuncionElementChildren(fiber.element);
 		} else {
-			// Else call function to create children, and update
-			const children = fiber.element.type(fiber.element.props);
-			fiber.element.props.children = [children];
+			fiber = this.createNodeFromFiber(fiber);
 		}
 		fiber = this.processChildFibers(fiber);
 		return this.findNextFiberInTraversal(fiber);
