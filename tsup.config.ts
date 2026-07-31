@@ -7,7 +7,7 @@ export default defineConfig({
 	entry: ["src/index.ts"],
 	clean: true,
 	format: ["cjs", "esm", "iife"],
-	globalName: "Reakt",
+	globalName: "ReaKt",
 	outDir: "build",
 	minify: isProduction,
 	sourcemap: false,

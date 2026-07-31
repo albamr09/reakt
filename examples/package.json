@@ -1,0 +1,20 @@
+{
+	"name": "reakt-examples",
+	"version": "1.0.0",
+	"author": "Alba Martínez Rodríguez",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"preview": "vite preview",
+		"lint:check": "biome check src"
+	},
+	"dependencies": {
+		"reakt": "file:../"
+	},
+	"devDependencies": {
+		"@types/react": "^19.2.18",
+		"typescript": "^5.9.3",
+		"vite": "^5.4.11"
+	}
+}
