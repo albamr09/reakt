@@ -1,12 +1,12 @@
 interface ReaktElement {
-  type: string;
+  type: keyof HTMLElementTagNameMap;
   props: Omit<Record<string, string | ReaktElement[]>, "children"> & {
     children?: ReaktElement[];
   };
 }
 
 export const createElement = (
-  type: string,
+  type: keyof HTMLElementTagNameMap,
   props: Record<string, string>,
   ...children: ReaktElement[]
 ): ReaktElement => {
@@ -20,9 +20,11 @@ export const createElement = (
 };
 
 const createNode = (element: ReaktElement | string): Element | Text => {
+  // 1. If the element is a string, we simply create a text node
   if (typeof element === "string") {
     return document.createTextNode(element);
   } else {
+    // 2. If the element is an object, we create a node of the given type
     const node = document.createElement(element.type);
     const { children, ...props } = element.props;
 

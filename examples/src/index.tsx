@@ -1,11 +1,6 @@
 import Reakt from "./reakt";
 
-const Element = (
-  <div id="foo">
-    <a>bar</a>
-    <b />
-  </div>
-);
+const Element = <p className="lead">Hi</p>;
 
 // This logs out the result of calling Reakt.createElement
 console.log(Element);
