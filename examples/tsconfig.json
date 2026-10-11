@@ -10,6 +10,6 @@
     // With "react" it will transform JSX elements into calls to React.createElement()
     "jsx": "react",
     // Specifies the factory function to use when compiling JSX
-    "jsxFactory": "ReaKt.createElement"
+    "jsxFactory": "Reakt.createElement"
   }
 }

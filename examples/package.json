@@ -5,12 +5,13 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
     "lint:check": "biome check src"
   },
   "dependencies": {
-    "reakt": "file:../"
+    "reakt": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",

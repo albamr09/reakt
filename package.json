@@ -5,9 +5,12 @@
   "description": "Reakt Library",
   "author": "Alba Martínez Rodríguez",
   "license": "MIT",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
-    "pro:build": "NODE_ENV=production tsup",
-    "dev:build": "tsup"
+    "pro:build": "tsup",
+    "build": "pnpm -r run build",
+    "dev": "pnpm -r run dev"
   },
   "repository": {
     "type": "git",

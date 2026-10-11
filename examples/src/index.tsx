@@ -1,4 +1,4 @@
-import Reakt from "./reakt";
+import Reakt from "reakt";
 
 const Element = <p className="lead">Hi</p>;
 
