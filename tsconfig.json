@@ -1,0 +1,16 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@reakt/*": ["src/*"]
+    },
+    "module": "es2015",
+    "target": "es2017",
+    "lib": ["es2017", "DOM"],
+    "declaration": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "rootDir": "src"
+  }
+}

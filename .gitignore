@@ -1,2 +1,3 @@
-*/node_modules/**
-*/dist/**
+// Development files
+node_modules
+dist
